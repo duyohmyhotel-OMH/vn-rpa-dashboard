@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VN RPA Weekly — OhmyHotel&Co</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:12px;background:#f0f4fb;min-height:100vh}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ══ LOGIN SCREEN ══════════════════════════════════════════════════ */
+#scrLogin{background:linear-gradient(135deg,#0a1628 0%,#1F3864 60%,#2c5282 100%);
+  align-items:center;justify-content:center}
+.login-card{background:#fff;border-radius:16px;padding:40px 44px;width:380px;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center}
+.login-logo{font-size:28px;font-weight:900;color:#1F3864;letter-spacing:1px;margin-bottom:4px}
+.login-logo span{color:#f39c12}
+.login-sub{font-size:11px;color:#888;margin-bottom:28px;letter-spacing:.5px}
+.login-title{font-size:15px;font-weight:700;color:#1F3864;margin-bottom:20px}
+.form-group{text-align:left;margin-bottom:16px}
+.form-group label{display:block;font-size:11px;font-weight:700;color:#555;
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.form-group input{width:100%;height:40px;padding:0 14px;border:2px solid #e0e6f0;
+  border-radius:8px;font-size:13px;outline:none;transition:border-color .2s}
+.form-group input:focus{border-color:#1F3864;background:#f8faff}
+.login-btn{width:100%;height:42px;background:#1F3864;color:#fff;border:none;
+  border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;
+  letter-spacing:.5px;transition:background .2s;margin-top:6px}
+.login-btn:hover{background:#2c5282}
+.login-err{background:#fee;border:1px solid #fcc;border-radius:6px;
+  padding:8px 12px;font-size:11px;color:#c0392b;margin-top:12px;display:none}
+.login-note{font-size:10px;color:#aaa;margin-top:16px;line-height:1.5}
+.login-ver{font-size:10px;color:#ccc;margin-top:16px}
+
+/* ══ UPLOAD SCREEN ═════════════════════════════════════════════════ */
+#scrUpload{background:linear-gradient(135deg,#0a1628 0%,#1F3864 60%,#2c5282 100%);
+  align-items:center;justify-content:center}
+.upload-wrap{text-align:center;width:560px}
+.upload-greeting{color:#aed6f1;font-size:13px;margin-bottom:4px}
+.upload-greeting span{color:#f9e79f;font-weight:700}
+.upload-headline{color:#fff;font-size:22px;font-weight:700;margin-bottom:6px;letter-spacing:.3px}
+.upload-sub{color:#7fb3d3;font-size:12px;margin-bottom:32px}
+.drop-zone{background:rgba(255,255,255,.06);border:2px dashed rgba(255,255,255,.3);
+  border-radius:16px;padding:48px 32px;cursor:pointer;transition:all .2s;position:relative}
+.drop-zone:hover,.drop-zone.drag{background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.6)}
+.drop-icon{font-size:52px;margin-bottom:14px;opacity:.8}
+.drop-main{color:#fff;font-size:16px;font-weight:700;margin-bottom:6px}
+.drop-hint{color:#aed6f1;font-size:12px;margin-bottom:20px}
+.drop-btn{background:#f39c12;color:#fff;border:none;border-radius:8px;
+  padding:10px 28px;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s}
+.drop-btn:hover{background:#e67e22}
+#fileInput{display:none}
+.upload-format{background:rgba(0,0,0,.2);border-radius:10px;padding:14px 20px;
+  margin-top:20px;text-align:left}
+.upload-format p{color:#aed6f1;font-size:11px;font-weight:700;margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.5px}
+.upload-format ul{color:#7fb3d3;font-size:11px;padding-left:16px;line-height:1.8}
+.upload-err{background:rgba(192,57,43,.2);border:1px solid #e74c3c;border-radius:8px;
+  padding:10px 14px;color:#f5b7b1;font-size:12px;margin-top:16px;display:none}
+.upload-progress{margin-top:20px;display:none}
+.prog-bar-wrap{background:rgba(255,255,255,.1);border-radius:10px;height:8px;overflow:hidden}
+.prog-bar{background:#f39c12;height:100%;width:0;border-radius:10px;transition:width .3s}
+.prog-label{color:#aed6f1;font-size:11px;margin-top:8px}
+.upload-signout{color:#7fb3d3;font-size:11px;margin-top:24px;cursor:pointer;
+  text-decoration:underline;opacity:.7}
+.upload-signout:hover{opacity:1}
+
+/* ══ DASHBOARD SCREEN ══════════════════════════════════════════════ */
+#scrDash{background:#f0f4fb;flex-direction:column}
+/* header */
+.hdr{background:linear-gradient(135deg,#1F3864,#2c5282);color:#fff;
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:15px;font-weight:700;letter-spacing:.5px}
+.hdr-sub{font-size:10px;color:#aed6f1;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-user{font-size:11px;color:#aed6f1}
+.hdr-file{font-size:10px;color:#f9e79f;margin-top:1px}
+.btn-upload-new{height:26px;padding:0 12px;background:#f39c12;color:#fff;
+  border:none;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-upload-new:hover{background:#e67e22}
+.btn-signout{height:26px;padding:0 10px;background:transparent;
+  color:#aed6f1;border:1px solid rgba(255,255,255,.3);border-radius:5px;
+  font-size:10px;cursor:pointer;white-space:nowrap}
+.btn-signout:hover{background:rgba(255,255,255,.1)}
+/* tabs */
+.tabs{background:#162950;display:flex;border-bottom:2px solid #f39c12}
+.tab{padding:8px 18px;font-size:12px;font-weight:700;color:#aed6f1;cursor:pointer;
+  border-right:1px solid rgba(255,255,255,.1);white-space:nowrap;user-select:none}
+.tab:hover{background:#1f3a6e;color:#fff}
+.tab.active{background:#1F3864;color:#f9e79f;border-bottom:3px solid #f39c12;margin-bottom:-2px}
+/* filters */
+.filters{background:#fff;border-bottom:2px solid #1F3864;padding:7px 14px;
+  display:flex;flex-wrap:wrap;gap:9px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:2px}
+.fg label{font-size:10px;font-weight:700;color:#1F3864;
+  text-transform:uppercase;letter-spacing:.5px}
+.fg select,.fg input{height:28px;padding:0 8px;border:1.5px solid #c0cce0;
+  border-radius:4px;font-size:11px;background:#f9fafc;outline:none}
+.fg select:focus,.fg input:focus{border-color:#1F3864;background:#fff}
+.fg.wide select{width:150px}
+.fg.srch input{width:185px}
+.btn{height:28px;padding:0 12px;border:none;border-radius:4px;
+  font-size:11px;font-weight:700;cursor:pointer;align-self:flex-end;white-space:nowrap}
+.btn.rst{background:#e74c3c;color:#fff}.btn.rst:hover{background:#c0392b}
+.btn.exp{background:#1a6b5a;color:#fff}.btn.exp:hover{background:#0f4d3a}
+/* totals bar */
+.totals-bar{background:#1F3864;color:#fff;display:flex;align-items:stretch;
+  overflow-x:auto;border-bottom:2px solid #f39c12}
+.tb-i{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:5px 12px;border-right:1px solid rgba(255,255,255,.18);min-width:0}
+.tb-i:last-child{border-right:none;margin-left:auto;padding-right:10px}
+.tb-lbl{font-size:9px;color:#aed6f1;text-transform:uppercase;letter-spacing:.5px;
+  white-space:nowrap;margin-bottom:1px}
+.tb-val{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.tb-val.rn{color:#7fe7c4;font-size:14px}
+.tb-val.mg{color:#f9e79f}
+.mo-badge{background:#f39c12;color:#fff;border-radius:10px;
+  padding:2px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+/* account bars */
+.acct-bar{padding:6px 14px;display:flex;align-items:flex-start;
+  gap:12px;flex-wrap:wrap;border-top:2px solid}
+.ab-left{display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:195px}
+.ab-ct{border-radius:10px;padding:2px 10px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.ab-lbl{font-size:11px;white-space:nowrap}
+.ab-prv{font-size:10px;font-style:italic;margin-top:1px}
+.ab-chips{display:flex;flex-wrap:wrap;gap:5px;flex:1}
+.chip{border-radius:12px;padding:2px 8px;font-size:10px;border:1px solid;white-space:nowrap}
+.no-sel{font-size:11px;font-style:italic}
+.new-bar{background:#0d3324;border-color:#27ae60}
+.new-bar .ab-lbl{color:#a9dfbf}.new-bar .ab-prv{color:#7fb99a}.new-bar .no-sel{color:#7fb99a}
+.ch-new{background:#1e8449;color:#d4efdf;border-color:#27ae60}
+.ch-new.c22{background:#7d4c00;border-color:#e67e22;color:#fde8c0}
+.ch-new.cMV{background:#0a3d24;border-color:#1e8449;color:#a9dfbf}
+.lost-bar{background:#3d0d0d;border-color:#e74c3c}
+.lost-bar .ab-lbl{color:#f5b7b1}.lost-bar .ab-prv{color:#e59999}.lost-bar .no-sel{color:#e59999}
+.ch-lost{background:#922b21;color:#fadbd8;border-color:#e74c3c}
+.ch-lost.c22{background:#7d3c00;border-color:#e67e22;color:#fde8c0}
+.ch-lost.cMV{background:#0a3d24;border-color:#1e8449;color:#a9dfbf}
+/* detail table */
+.tbl-wrap{overflow:auto;max-height:calc(100vh - 305px)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead tr{background:#1F3864;color:#fff;position:sticky;top:0;z-index:2}
+thead th{padding:7px 8px;text-align:center;font-weight:700;font-size:10.5px;
+  border:1px solid #2c4a7c;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{background:#2c5282}
+thead th.left{text-align:left}
+thead th.sorted{background:#e67e22!important}
+tbody tr:hover td{background:#dbeafe!important}
+tbody td{padding:4px 8px;border:1px solid #e0e6f0;text-align:right;color:#1a1a1a;white-space:nowrap}
+tbody td.left{text-align:left}
+tbody td.center{text-align:center}
+.re{background:#f9fafc}.ro{background:#fff}.r22{background:#fff8f0}
+.n22{color:#e67e22;font-weight:700}.nMV{color:#1a6b5a;font-weight:600}
+.neg{color:#e74c3c;font-weight:700}
+.hiMg{color:#1a6b5a;font-weight:700}.midMg{color:#e67e22;font-weight:600}.loMg{color:#c0392b}
+.nodata{text-align:center;padding:32px;color:#999;font-size:13px}
+.pic-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:700;color:#fff}
+.pAerum{background:#c0392b}.pAndy{background:#2471a3}.pAnna{background:#8e44ad}
+.pHanny{background:#d68910}.pLukas{background:#1e8449}.pMike{background:#6e2f00}.pNhi{background:#1a6b5a}
+.pg-info{background:#fff;padding:4px 14px;font-size:10px;color:#888;
+  border-top:1px solid #e0e6f0;display:flex;justify-content:space-between;align-items:center}
+.pg-btns{display:flex;gap:4px}
+.pg-btn{height:21px;padding:0 7px;border:1px solid #c0cce0;border-radius:3px;
+  background:#f9fafc;cursor:pointer;font-size:10px}
+.pg-btn:hover,.pg-btn.active{background:#1F3864;color:#fff}
+/* NPU view */
+.npu-hdr{background:#3d0a0a;color:#fff;padding:8px 14px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap;border-bottom:2px solid #e74c3c}
+.npu-hdr .ht{font-size:13px;font-weight:700;color:#f5b7b1}
+.npu-hdr .hs{font-size:10px;color:#e59999;margin-top:1px}
+.npu-summary{display:flex;overflow-x:auto;flex-shrink:0}
+.npu-stat{padding:3px 11px;border-right:1px solid rgba(255,255,255,.2);
+  display:flex;flex-direction:column;align-items:center;min-width:52px}
+.npu-stat:last-child{border-right:none}
+.npu-sl{font-size:9px;color:#f5b7b1;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.npu-sv{font-size:13px;font-weight:700;color:#fff}
+.npu-ctrl{background:#fff;border-bottom:1px solid #e0e6f0;padding:6px 14px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.npu-ctrl input,.npu-ctrl select{height:27px;padding:0 8px;border:1.5px solid #c0cce0;
+  border-radius:4px;font-size:11px;outline:none;background:#f9fafc}
+.npu-ctrl input{width:190px}
+.npu-ctrl input:focus,.npu-ctrl select:focus{border-color:#1F3864}
+.npu-info{font-size:11px;color:#666;margin-left:auto}
+.npu-tbl-wrap{overflow:auto;max-height:calc(100vh - 195px)}
+.npu-table{width:100%;border-collapse:collapse;font-size:11px}
+.npu-table thead tr{background:#7b1111;color:#fff;position:sticky;top:0;z-index:2}
+.npu-table thead th{padding:6px 8px;text-align:left;font-weight:700;font-size:10.5px;
+  border:1px solid #9b2222;white-space:nowrap;cursor:pointer;user-select:none}
+.npu-table thead th:hover{background:#9b2222}
+.npu-table thead th.r{text-align:right}
+.npu-table thead th.sorted{background:#c0392b!important}
+.npu-table tbody tr:hover td{background:#fff0f0!important}
+.npu-table tbody tr.re td{background:#fff8f8}
+.npu-table tbody tr.ro td{background:#fff}
+.npu-table tbody td{padding:4px 8px;border:1px solid #f0d8d8;color:#1a1a1a;
+  text-align:left;white-space:nowrap}
+.npu-table tbody td.r{text-align:right}
+.npu-table tbody td.c{text-align:center}
+.prev-rn{color:#27ae60;font-weight:600}
+.no-prev{color:#ccc}
+.npu-no-data{text-align:center;padding:40px;color:#999;font-size:13px}
+/* YoY view */
+.yoy-hdr{background:#0a2a4a;color:#fff;padding:8px 14px;display:flex;
+  align-items:center;gap:12px;flex-wrap:wrap;border-bottom:2px solid #2980b9}
+.yoy-hdr .ht{font-size:13px;font-weight:700;color:#aed6f1}
+.yoy-hdr .hs{font-size:10px;color:#7fb3d3;margin-top:1px}
+.yoy-summary{display:flex;overflow-x:auto;flex-shrink:0}
+.yoy-stat{padding:3px 11px;border-right:1px solid rgba(255,255,255,.2);
+  display:flex;flex-direction:column;align-items:center;min-width:52px}
+.yoy-stat:last-child{border-right:none}
+.yoy-sl{font-size:9px;color:#aed6f1;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.yoy-sv{font-size:13px;font-weight:700;color:#fff}
+.yoy-ctrl{background:#fff;border-bottom:1px solid #e0e6f0;padding:6px 14px;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.yoy-ctrl input,.yoy-ctrl select{height:27px;padding:0 8px;border:1.5px solid #c0cce0;
+  border-radius:4px;font-size:11px;outline:none;background:#f9fafc}
+.yoy-ctrl input{width:190px}
+.yoy-ctrl input:focus,.yoy-ctrl select:focus{border-color:#1F3864}
+.yoy-info{font-size:11px;color:#666;margin-left:auto}
+.yoy-tbl-wrap{overflow:auto;max-height:calc(100vh - 195px)}
+.yoy-table{width:100%;border-collapse:collapse;font-size:11px}
+.yoy-table thead tr{background:#1a4a7a;color:#fff;position:sticky;top:0;z-index:2}
+.yoy-table thead th{padding:6px 8px;text-align:left;font-weight:700;font-size:10.5px;
+  border:1px solid #2c5a8a;white-space:nowrap;cursor:pointer;user-select:none}
+.yoy-table thead th:hover{background:#2c5a8a}
+.yoy-table thead th.r{text-align:right}
+.yoy-table thead th.sorted{background:#e67e22!important}
+.yoy-table tbody tr:hover td{background:#e8f4fd!important}
+.yoy-table tbody tr.re td{background:#f4f9ff}
+.yoy-table tbody tr.ro td{background:#fff}
+.yoy-table tbody td{padding:4px 8px;border:1px solid #d0e4f0;color:#1a1a1a;
+  text-align:left;white-space:nowrap}
+.yoy-table tbody td.r{text-align:right}
+.yoy-table tbody td.c{text-align:center}
+.new26-badge{background:#1a6b5a;color:#d4efdf;border-radius:7px;
+  padding:1px 7px;font-size:10px;font-weight:700}
+.only25-badge{background:#922b21;color:#fadbd8;border-radius:7px;
+  padding:1px 7px;font-size:10px;font-weight:700}
+.rn-bar{display:inline-block;height:7px;background:#2980b9;border-radius:2px;
+  vertical-align:middle;margin-left:5px;min-width:2px}
+/* legend */
+.legend{font-size:10px;color:#555;padding:4px 14px;background:#fffdf9;
+  border-top:1px solid #f0e6d0;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ SCREEN 1 : LOGIN ══════════════════════════ -->
+<div class="screen active" id="scrLogin">
+  <div class="login-card">
+    <div class="login-logo">omh<span>&Co</span></div>
+    <div class="login-sub">OhmyHotel & Co — Vietnam SCM Team</div>
+    <div class="login-title">Sign in to VN RPA Weekly Dashboard</div>
+    <div class="form-group">
+      <label>Work Email</label>
+      <input type="email" id="emailInput" placeholder="yourname@ohmyhotel.com"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Continue</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-note">
+      Access is restricted to <strong>@ohmyhotel.com</strong> email addresses only.
+    </div>
+    <div class="login-ver">VN RPA Weekly Dashboard v2.0 &bull; 2026</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SCREEN 2 : UPLOAD ═════════════════════════ -->
+<div class="screen" id="scrUpload">
+  <div class="upload-wrap">
+    <div class="upload-greeting">Welcome back, <span id="greetName">—</span></div>
+    <div class="upload-headline">Your VN RPA Weekly is ready.</div>
+    <div class="upload-sub">Please input file to load the latest data into your dashboard.</div>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
+      ondragover="ev(event,'drag',1)" ondragleave="ev(event,'drag',0)"
+      ondrop="ev(event,'drop')">
+      <div class="drop-icon">&#128196;</div>
+      <div class="drop-main">Drop your RPA Weekly Excel file here</div>
+      <div class="drop-hint">or click to browse from your computer</div>
+      <button class="drop-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">
+        Browse File
+      </button>
+    </div>
+    <input type="file" id="fileInput" accept=".xlsx,.xls"
+      onchange="handleFile(this.files[0])">
+    <div class="upload-format">
+      <p>&#9989; Required file format</p>
+      <ul>
+        <li>Excel file (.xlsx) — RPA_WEEKLY_XXXXXX_based_on_the_check_out_date</li>
+        <li>Must contain sheets: <strong>Real RN</strong>, <strong>Selling Rate</strong>, <strong>Buying rate</strong>, <strong>Margin</strong></li>
+        <li>Standard OMH RPA Weekly export format</li>
+      </ul>
+    </div>
+    <div class="upload-err" id="uploadErr"></div>
+    <div class="upload-progress" id="upProg">
+      <div class="prog-bar-wrap"><div class="prog-bar" id="progBar"></div></div>
+      <div class="prog-label" id="progLabel">Reading file…</div>
+    </div>
+    <div class="upload-signout" onclick="signOut()">&#8592; Sign out</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SCREEN 3 : DASHBOARD ══════════════════════ -->
+<div class="screen" id="scrDash">
+
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">VN RPA WEEKLY DASHBOARD — OhmyHotel&Co</div>
+      <div class="hdr-sub" id="hdrSub">2026 · Based on Checkout Date</div>
+    </div>
+    <div class="hdr-right">
+      <div style="text-align:right">
+        <div class="hdr-user" id="hdrUser"></div>
+        <div class="hdr-file" id="hdrFile"></div>
+      </div>
+      <button class="btn-upload-new" onclick="goUpload()">&#8593; Update File</button>
+      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tabD" onclick="sw('D')">&#128203; Detail by Hotel</div>
+    <div class="tab" id="tabN" onclick="sw('N')">&#128683; No Pick Up Accounts</div>
+    <div class="tab" id="tabY" onclick="sw('Y')">&#128200; YoY New Accounts 2026 vs 2025</div>
+  </div>
+
+  <div class="filters">
+    <div class="fg"><label>Month</label>
+      <select id="fM" onchange="pg=1;render()">
+        <option value="0">All Months</option>
+        <option value="1">1 — Jan</option><option value="2">2 — Feb</option>
+        <option value="3">3 — Mar</option><option value="4">4 — Apr</option>
+        <option value="5">5 — May</option><option value="6">6 — Jun</option>
+        <option value="7">7 — Jul</option><option value="8">8 — Aug</option>
+        <option value="9">9 — Sep</option><option value="10">10 — Oct</option>
+        <option value="11">11 — Nov</option><option value="12">12 — Dec</option>
+      </select></div>
+    <div class="fg"><label>PIC</label>
+      <select id="fP" onchange="pg=1;render()">
+        <option value="">All PICs</option>
+        <option>Aerum</option><option>Andy</option><option>Anna</option>
+        <option>Hanny</option><option>Lukas</option><option>Mike</option><option>Nhi</option>
+      </select></div>
+    <div class="fg wide"><label>Region</label>
+      <select id="fR" onchange="pg=1;render()">
+        <option value="">All Regions</option>
+        <option>Da Lat</option><option>Da Nang</option><option>ETC</option>
+        <option>Hanoi</option><option>Ho Chi Minh</option><option>Hoi An</option>
+        <option>Nha Trang</option><option>Phan Thiet</option><option>Phu Quoc</option>
+      </select></div>
+    <div class="fg srch"><label>Search Hotel</label>
+      <input type="text" id="fS" placeholder="Type hotel name…" oninput="pg=1;render()"></div>
+    <div class="fg" id="grpSort"><label>Sort by</label>
+      <select id="fSo" onchange="pg=1;render()">
+        <option value="rn">Room Nights &#8595;</option><option value="sell">Selling &#8595;</option>
+        <option value="mg">Margin &#8595;</option><option value="mp">Margin % &#8595;</option>
+        <option value="name">Hotel Name &#8593;</option><option value="area">Region &#8593;</option>
+      </select></div>
+    <div class="fg" id="grpPage"><label>Per page</label>
+      <select id="fPg" onchange="pg=1;render()">
+        <option value="50">50</option><option value="100" selected>100</option>
+        <option value="200">200</option><option value="9999">All</option>
+      </select></div>
+    <button class="btn rst" onclick="clearF()">Reset</button>
+    <button class="btn exp" id="btnExp" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="viewD">
+    <div class="totals-bar">
+      <div class="tb-i"><div class="tb-lbl">Hotels</div><div class="tb-val rn" id="tH">&#8212;</div></div>
+      <div class="tb-i"><div class="tb-lbl">Room Nights</div><div class="tb-val rn" id="tR">&#8212;</div></div>
+      <div class="tb-i"><div class="tb-lbl">Total Selling (VND)</div><div class="tb-val" id="tS">&#8212;</div></div>
+      <div class="tb-i"><div class="tb-lbl">Total Buying (VND)</div><div class="tb-val" id="tB">&#8212;</div></div>
+      <div class="tb-i"><div class="tb-lbl">Total Margin (VND)</div><div class="tb-val mg" id="tM">&#8212;</div></div>
+      <div class="tb-i"><div class="tb-lbl">Avg Margin %</div><div class="tb-val mg" id="tMP">&#8212;</div></div>
+      <div class="tb-i"><div class="mo-badge" id="mB">All 2026</div></div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        <th style="width:36px">No.</th>
+        <th class="left" style="min-width:82px">Region</th>
+        <th style="width:82px">Hotel Code</th>
+        <th class="left" style="min-width:210px">Hotel Name</th>
+        <th style="min-width:82px" class="sorted">Total RN &#8595;</th>
+        <th style="min-width:130px">Total Selling (VND)</th>
+        <th style="min-width:130px">Total Buying (VND)</th>
+        <th style="min-width:120px">Total Margin (VND)</th>
+        <th style="width:80px">Margin %</th>
+        <th style="width:60px">PIC</th>
+      </tr></thead>
+      <tbody id="tBody"></tbody>
+    </table></div>
+    <div class="pg-info"><span id="pgI">&#8212;</span><div class="pg-btns" id="pgB"></div></div>
+    <div class="acct-bar new-bar">
+      <div class="ab-left"><span class="ab-ct" id="newCt" style="background:#555">&#8212;</span>
+        <div><div class="ab-lbl" id="newLbl">New accounts</div>
+             <div class="ab-prv" id="newPrv">Select a month</div></div></div>
+      <div class="ab-chips" id="newChips"><span class="no-sel" style="color:#7fb99a">Choose a month above</span></div>
+    </div>
+    <div class="acct-bar lost-bar">
+      <div class="ab-left"><span class="ab-ct" id="lostCt" style="background:#555">&#8212;</span>
+        <div><div class="ab-lbl" id="lostLbl">Lost accounts</div>
+             <div class="ab-prv" id="lostPrv">Hotels with bookings last month but none this month</div></div></div>
+      <div class="ab-chips" id="lostChips"><span class="no-sel" style="color:#e59999">Choose a month above</span></div>
+    </div>
+  </div>
+
+  <!-- NO PICK UP -->
+  <div id="viewN" style="display:none">
+    <div class="npu-hdr">
+      <div><div class="ht">&#128683; No Pick Up Accounts — Hotels with 0 Room Nights</div>
+           <div class="hs">Portfolio hotels with 0 RN in selected month &bull; green = had RN in previous month</div></div>
+      <div class="npu-summary" id="npuSum"></div>
+      <div class="mo-badge" id="npuBadge" style="margin-left:auto">Select a month</div>
+    </div>
+    <div class="npu-ctrl">
+      <input type="text" id="npuSrch" placeholder="Search hotel…" oninput="renderNPU()">
+      <select id="npuSrt" onchange="renderNPU()">
+        <option value="pic">Group: By PIC</option>
+        <option value="area">Group: By Region</option>
+      </select>
+      <select id="npuOrd" onchange="renderNPU()">
+        <option value="name">Sort: Hotel Name &#8593;</option>
+        <option value="area">Sort: Region &#8593;</option>
+        <option value="prev">Sort: Prev-month RN &#8595;</option>
+      </select>
+      <span class="npu-info" id="npuInfo">&#8212;</span>
+      <button class="btn exp" onclick="exportNPU()">Export CSV</button>
+    </div>
+    <div class="npu-tbl-wrap"><table class="npu-table">
+      <thead><tr>
+        <th style="width:34px">No.</th>
+        <th style="width:90px" id="nhGrp">PIC &#9660;</th>
+        <th>Hotel Name</th>
+        <th style="width:88px">Region</th>
+        <th style="width:78px">Code</th>
+        <th class="r" style="width:95px">Prev-month RN</th>
+        <th class="r" style="width:70px">This Month</th>
+      </tr></thead>
+      <tbody id="npuBody"></tbody>
+    </table></div>
+  </div>
+
+  <!-- YOY -->
+  <div id="viewY" style="display:none">
+    <div class="yoy-hdr">
+      <div><div class="ht">&#128200; YoY New Accounts — 2026 vs 2025</div>
+           <div class="hs">Comparing current upload vs 2025 full-year data (static)</div></div>
+      <div class="yoy-summary" id="yoySum"></div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <span id="yoyNewBadge" style="background:#1a6b5a;color:#d4efdf;border-radius:10px;padding:2px 10px;font-size:11px;font-weight:700">— New in 2026</span>
+        <span id="yoyOldBadge" style="background:#922b21;color:#fadbd8;border-radius:10px;padding:2px 10px;font-size:11px;font-weight:700">— Only in 2025</span>
+      </div>
+    </div>
+    <div class="yoy-ctrl">
+      <input type="text" id="yoySrch" placeholder="Search hotel…" oninput="renderYoY()">
+      <select id="yoyView" onchange="renderYoY()">
+        <option value="new">Show: New in 2026 (not in 2025)</option>
+        <option value="old">Show: Exited — Only in 2025 (not in 2026)</option>
+      </select>
+      <select id="yoySrt" onchange="renderYoY()">
+        <option value="pic">Group: By PIC</option>
+        <option value="area">Group: By Region</option>
+      </select>
+      <select id="yoyOrd" onchange="renderYoY()">
+        <option value="name">Sort: Hotel Name &#8593;</option>
+        <option value="area">Sort: Region &#8593;</option>
+        <option value="rn">Sort: Total RN &#8595;</option>
+      </select>
+      <span class="yoy-info" id="yoyInfo">&#8212;</span>
+      <button class="btn exp" onclick="exportYoY()">Export CSV</button>
+    </div>
+    <div class="yoy-tbl-wrap"><table class="yoy-table">
+      <thead><tr>
+        <th style="width:34px">No.</th>
+        <th style="width:90px" id="yhGrp">PIC &#9660;</th>
+        <th>Hotel Name</th>
+        <th style="width:88px">Region</th>
+        <th style="width:78px">Code</th>
+        <th class="r" style="width:105px">2026 YTD RN</th>
+        <th class="r" style="width:90px">Status</th>
+      </tr></thead>
+      <tbody id="yoyBody"></tbody>
+    </table></div>
+  </div>
+
+  <div class="legend">
+    <b style="color:#1F3864">Color:</b>
+    <span><span class="dot" style="background:#e67e22"></span><b style="color:#e67e22">22Land/22Housing</b></span>
+    <span><span class="dot" style="background:#1a6b5a"></span><span style="color:#1a6b5a">M Village</span></span>
+    <span><span class="dot" style="background:#1a6b5a"></span><span style="color:#1a6b5a">Margin&#8805;7%</span></span>
+    <span><span class="dot" style="background:#e67e22"></span><span style="color:#e67e22">3-4%</span></span>
+    <span><span class="dot" style="background:#c0392b"></span><span style="color:#c0392b">&lt;3%</span></span>
+    <span><span class="dot" style="background:#e74c3c"></span><span style="color:#e74c3c">Negative</span></span>
+    <span style="margin-left:auto;color:#888">
+      &#128994; New month &nbsp;&#128308; Lost month &nbsp;&#128683; No Pick Up &nbsp;&#128200; YoY vs 2025
+    </span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+/* ══ STATIC 2025 DATA (embedded, never changes) ══════════════════════ */
+const H2025_LIST=
+[["215829","Nha Trang","Aerum","Maple Hotel & Apartment",3632],["886622","Nha Trang","Aerum","Seaesta Hotel Nha Trang",3374],["985239","Phu Quoc","Aerum","Grand Ocean Bay Resort Phu Quoc",2630],["1001024","Hanoi","Anna","Signature By M Village Tho Nhuom",1954],["682358","Nha Trang","Aerum","Amiana Resort Nha Trang",1831],["995726","Da Nang","Anna","V-Hotel",1720],["251392","Phu Quoc","Aerum","Camia Resort & Spa",1712],["396766","Nha Trang","Aerum","Le More Hotel",1664],["995731","Ho Chi Minh","Aerum","HIIVE by Fusion Binh Duong New City",1616],["373032","Ho Chi Minh","Aerum","Citadines Central Binh Duong Hotel",1406],["152047","Ho Chi Minh","Mike","Avanti Hotel",1404],["805287","Da Nang","Anna","Minh Toan Galaxy Danang Hotel",1207],["606114","Ho Chi Minh","Anna","Rex Hotel Saigon",1104],["642827","Ho Chi Minh","Aerum","Paragon Saigon Hotel",1084],["1001392","Ho Chi Minh","Anna","M Village Hotel Nguyen Du",1032],["983130","Phu Quoc","Aerum","Venice Hotel Phu Quoc - Free Hon Thom Island Waterpark Cable Car & Sunset Town Tour",1028],["886627","Da Nang","Mike","Mercy Emerald Hotel",1023],["582898","Phu Quoc","Aerum","Sonaga Beach Resort Phu Quoc",989],["1000113","Nha Trang","Lukas","Adamas Boutique Hotel Nha Trang",980],["983132","Hanoi","Anna","M Village Ho Guom",978],["1001086","Da Nang","Anna","M Village Hotel Da Nang Centre",965],["982790","Ho Chi Minh","Anna","Signature by M Village Le Thanh Ton",961],["1001076","Ho Chi Minh","Anna","Signature by M Village Hai Ba Trung",958],["179835","Phan Thiet","Mike","Pandanus Resort",902],["1001204","Ho Chi Minh","Anna","M Village Hotel Tao Dan Park",864],["1001184","Ho Chi Minh","Mike","SUZU Saigon Hotel",842],["164194","Ho Chi Minh","Hanny","Liberty Hotel Saigon Parkview",839],["1001350","ETC","Nhi","Mekong My Tho Hotel",802],["709121","Phu Quoc","Aerum","Ocean Bay Phu Quoc Resort & Spa",750],["985004","Nha Trang","Aerum","Panama Hotel Nha Trang",741],["1001040","Ho Chi Minh","Anna","M Village Hai Ba Trung",733],["770847","Hanoi","Andy","22land Residence Hotel & Spa 71 Hang Bong Hoan Kiem",722],["831451","Nha Trang","Lukas","Grand Tourane Nha Trang Hotel",707],["191625","Hanoi","Anna","Aliana Boutique Sapa Hotel & Spa",676],["721746","Ho Chi Minh","Anna","Caravelle Hotel",664],["314384","Ho Chi Minh","Mike","Elios Hotel",663],["1001079","Ho Chi Minh","Anna","M Village Nguyen Kiem",652],["970517","Da Lat","Lukas","MerPerle Dalat Hotel",646],["326596","Hanoi","Anna","Bamboo Sapa Hotel",634],["486741","Ho Chi Minh","Mike","Avanti Boutique Hotel",626],["271462","Ho Chi Minh","Hanny","Oakwood Residence Saigon",606],["184640","Da Nang","Anna","Paracel Danang Hotel",606],["1001332","Hanoi","Anna","Cat Cat Galerie d'Art Hotel",605],["1001299","Ho Chi Minh","Anna","M Village Thi Sach",602],["586685","Da Nang","Mike","Santa Luxury Hotel",600],["861138","Da Nang","Anna","Ocean Haven Hotel Danang",598],["155204","Phan Thiet","Mike","Malibu Hotel",594],["982788","Hanoi","Anna","Joville Hotel Sapa",589],["343476","Ho Chi Minh","Anna","KIN Hotel Thai Van Lung",588],["234826","Da Nang","Mike","San Marino Boutique Danang",583],["157425","Ho Chi Minh","Hanny","Sunrise Central Hotel",579],["220370","Da Nang","Anna","Belle Maison Parosand Danang Hotel",573],["1001282","Hanoi","Anna","M Village Hotel Tho Nhuom",569],["813172","Hanoi","Anna","Reyna Luxury Hotel",565],["856815","Nha Trang","Lukas","Nha Trang Palace Hotel",564],["139868","Da Nang","Mike","Helios Boutique Hotel & Spa",552],["795664","Ho Chi Minh","Nhi","Sabina Boutique Hotel 3",546],["698758","Phan Thiet","Mike","Centara Mirage Resort Mui Ne",539],["802516","Ho Chi Minh","Aerum","The Mira Hotel",537],["982791","Ho Chi Minh","Anna","M Village Ton That Dam",523],["786114","Hanoi","Anna","L'HÔTEL du LAC Hanoi",512],["687645","Ho Chi Minh","Anna","Tan Son Nhat Hotel",509],["577834","Phu Quoc","Aerum","AVS Hotel Phu Quoc",505],["848217","Ho Chi Minh","Aerum","HIIVE by Fusion Binh Duong",501],["521035","Hanoi","Anna","Grand Plaza Hanoi Hotel",491],["811727","Nha Trang","Aerum","Galina Hotel and Spa Nha Trang",482],["600311","Hanoi","Anna","Authentic Hanoi Boutique Hotel",477],["995729","Phu Quoc","Aerum","The Up Phu Quoc",470],["445993","Ho Chi Minh","Aerum","Saigon Hotel",469],["145392","Phan Thiet","Mike","Hoang Ngoc Resort",459],["343468","Ho Chi Minh","Anna","Vien Dong Hotel",447],["153696","Ho Chi Minh","Nhi","Fusion Suites Saigon",444],["519310","Phu Quoc","Aerum","Sunset Beach Resort & Spa",443],["1001197","Ho Chi Minh","Aerum","Nhat Ha Lavish Hotel",442],["705669","Phu Quoc","Aerum","Night Sea Hotel",441],["696467","Phan Thiet","Mike","The Sailing Bay Beach Resort",436],["449411","Ho Chi Minh","Nhi","Sabina Boutique Hotel 2",431],["215678","Hanoi","Anna","Somerset West Point Hanoi",428],["705080","Da Nang","Anna","Olalani Resort & Condotel",424],["710790","Hanoi","Anna","Rose Garden Residences",422],["850884","Phan Thiet","Mike","Muong Thanh Holiday Mui Ne Hotel",416],["1001369","Nha Trang","Lukas","Seaside Boutique Hotel Nha Trang Beach",414],["995732","Hoi An","Nhi","The Signature Hoi An",407],["420882","Ho Chi Minh","Nhi","Silverland Min Hotel",397],["239626","Hanoi","Anna","Grandiose Hotel & Spa",388],["689337","Hoi An","Nhi","Hoi An Memories Resort & Spa",378],["554765","Hanoi","Anna","Reyna Hotel Hanoi",375],["1000111","ETC","Hanny","TUI BLUE Tuy Hoa – Wellness & Retreat Hotel",368],["839743","Hanoi","Anna","Diamond Westlake Suites",360],["452660","Ho Chi Minh","Anna","Mai House Saigon Hotel",357],["474040","Ho Chi Minh","Aerum","Elizabeth Hotel",352],["109801","Da Nang","Mike","Samdi Hotel",345],["111689","Nha Trang","Lukas","Sunrise Nha Trang Beach Hotel & Spa",336],["854483","Da Lat","Lukas","The Western Hill Hotel (Former River Prince Hotel Dalat)",334],["347051","Nha Trang","Aerum","The Swan Nha Trang Hotel",333],["813477","Ho Chi Minh","Anna","Saigon Prince Hotel",331],["160823","Phan Thiet","Mike","SaiGon Mui Ne Resort",330],["1001410","Da Nang","Anna","Signature by M Village Beachfront Hotel",329],["997816","Ho Chi Minh","Anna","Kin Hotel Dong Du",325],["1001281","Ho Chi Minh","Mike","Huazhu Hotel",324],["1001206","Da Nang","Anna","Signature by M Village Da Nang Heritage",322],["588877","Nha Trang","Aerum","The Empyrean Nha Trang",317],["247930","Da Nang","Anna","Soho Boutique Hotel Danang",311],["447791","Phan Thiet","Mike","Sunny Beach Resort and Spa",306],["1001187","ETC","Nhi","Central Plaza Hotel My Tho",303],["586543","Ho Chi Minh","Anna","Hotel Nikko Saigon",303],["1001203","Nha Trang","Aerum","InterContinental Residences Nha Trang",301],["995730","Ho Chi Minh","Mike","Terracotta Villa Saigon",299],["524322","Nha Trang","Lukas","Alibu Resort Nha Trang",296],["229505","Nha Trang","Aerum","Boss Hotel Nha Trang",296],["606209","Da Nang","Mike","Prague Hotel Da Nang",294],["1001338","Hanoi","Andy","Nam Cuong Hai Duong Hotel",293],["285954","Hanoi","Anna","Sapa Green Hotel",293],["211197","Hanoi","Andy","Fraser Suites Hanoi",292],["203644","Nha Trang","Lukas","Citadines Bayfront Nha Trang",290],["654455","Nha Trang","Aerum","InterContinental Nha Trang Hotel",282],["606110","Ho Chi Minh","Hanny","Royal Hotel Saigon",279],["815935","ETC","Hanny","Grand Hyams Hotel Quy Nhon Beach",278],["510007","Hanoi","Anna","Grand Vista Hanoi",276],["459348","Nha Trang","Lukas","Nha Trang Prince Hotel",272],["297918","Da Nang","Anna","Balcona Hotel Da Nang",271],["985237","Hanoi","Andy","The Five Boutique Apartment Lilas",268],["666864","Phu Quoc","Aerum","M Village Phu Quoc",267],["953810","Da Lat","Lukas","Golden Imperial Hotel Da Lat",264],["219304","Hanoi","Anna","Pao's Sapa Leisure Hotel",264],["827642","Nha Trang","Lukas","Maris Hotel Nha Trang",263],["748654","Phu Quoc","Aerum","Sailing Club Signature Resort Phu Quoc",262],["1001389","Phan Thiet","Mike","Skool Plus Vung Tau",262],["886508","Hoi An","Nhi","Wyndham Hoi An Royal Beachfront Resort",262],["104269","Ho Chi Minh","Mike","The Luxe Hotel",260],["159571","Hanoi","Andy","Wyndham Legend Halong Hotel",260],["348226","Da Nang","Anna","Eden Ocean View Hotel Da Nang",257],["712479","ETC","Hanny","Elephants Hotel",256],["714102","Phan Thiet","Mike","Holiday Inn Resort Ho Tram Beach, an IHG Hotel",255],["352505","Da Lat","Lukas","Dalat Wonder Resort",252],["1001093","Phan Thiet","Mike","Oyster Bay Hotel Vung Tau",252],["733705","Hanoi","Anna","Muong Thanh Sapa Hotel",251],["480327","Hanoi","Anna","KK Sapa Hotel",248],["440683","Da Nang","Anna","Sala Danang Beach Hotel",247],["897734","Nha Trang","Aerum","Annova Nha Trang Hotel",246],["198749","Da Nang","Mike","Grandvrio City Danang",246],["577974","Nha Trang","Lukas","Wise Stay Panorama Nha Trang",246],["713750","Hanoi","Andy","22Housing Moon Westlake Residence",245],["343060","Ho Chi Minh","Anna","Kin Hotel Thi Sach",245],["429605","ETC","Andy","Nam Cuong Nam Dinh Hotel",245],["368042","Hanoi","Anna","Pistachio Hotel Sapa",243],["108267","Ho Chi Minh","Andy","An Thai Saigon Hotel",241],["396844","Ho Chi Minh","Mike","Aurora Western Village",241],["372590","ETC","Anna","Mandala Hotel & Spa Bac Ninh",241],["192950","Da Nang","Mike","Alani Hotel & Spa Da Nang",240],["662122","Ho Chi Minh","Anna","Muong Thanh Luxury Saigon Hotel",238],["223036","Nha Trang","Lukas","Rigel Hotel",238],["118555","Hanoi","Andy","La Casa Hanoi Hotel",235],["545466","Nha Trang","Aerum","Gonsala Hotel Nha Trang",233],["651446","Da Nang","Mike","Furama Resort Danang",232],["665050","Phan Thiet","Mike","Seaside Resort",232],["931048","Da Lat","Lukas","Brick House Da Lat",231],["565157","Ho Chi Minh","Mike","Sanouva Saigon Hotel",231],["655320","Da Nang","Anna","Calix Hotel Danang",230],["290571","Nha Trang","Lukas","Majestic Premium Hotel",229],["754056","Da Nang","Anna","Lavencos Hotel Danang",228],["174427","Da Lat","Lukas","Nice Dream Hotel Da Lat",228],["668798","Phan Thiet","Mike","P&T Hotel",227],["389883","ETC","Hanny","Rosa Alba Resort & Villas Tuy Hoa",227],["168556","Phu Quoc","Aerum","Sol by Melia Phu Quoc",226],["998961","Nha Trang","Aerum","Sea Soul Hotel Nha Trang",225],["287908","Nha Trang","Lukas","V Hotel Nha Trang",225],["389744","Da Lat","Lukas","Cereja Hotel & Resort Da Lat",223],["523396","Nha Trang","Aerum","Seana Hotel",222],["1001228","Nha Trang","Lukas","The Signature Hotel Nha Trang",222],["861133","Hanoi","Andy","Ha Long DC Hotel",220],["103973","Nha Trang","Lukas","Liberty Central Nha Trang",220],["143569","Da Nang","Mike","Sandy Beach Non Nuoc Resort",220],["194617","Phu Quoc","Aerum","Brenta Phu Quoc Hotel",218],["581695","Nha Trang","Lukas","Alma Resort Cam Ranh",217],["178907","Nha Trang","Aerum","Diamond Bay Condotel - Resort Nha Trang",216],["636918","Hanoi","Anna","Bao Son International Hotel",213],["327758","Ho Chi Minh","Aerum","The Mira Boutique Hotel",213],["886662","Phu Quoc","Aerum","Wyndham Garden Grandworld Phu Quoc (Holidays Infinity)",212],["298621","Da Nang","Mike","Melia Vinpearl Danang Riverfront",211],["476288","Nha Trang","Aerum","Erica Nha Trang Hotel",208],["124873","Ho Chi Minh","Hanny","Muong Thanh Saigon Centre Hotel",199],["495055","Nha Trang","Lukas","Wyndham Grand KN Paradise Cam Ranh",197],["1001415","Phan Thiet","Mike","Amana Hotel Phan Thiet",196],["886623","Da Nang","Nhi","La Vela Hue Hotel",196],["286524","Da Nang","Anna","Tamarind Hotel Da Nang",196],["288294","Nha Trang","Lukas","Nagar Hotel Nha Trang",195],["861321","Da Lat","Lukas","Terracotta Hotel & Resort Dalat",195],["1001321","Ho Chi Minh","Aerum","Pink Boutique Ben Thanh Hotel",194],["606109","Ho Chi Minh","Mike","Grand Hotel Saigon",193],["1001373","Hanoi","Anna","Azalea Sapa Hotel",192],["134035","Hanoi","Anna","Army Hotel",191],["977208","Ho Chi Minh","Hanny","Richlane Residences",191],["250438","Da Nang","Anna","Satya Danang Hotel",191],["154326","Hoi An","Nhi","Silkotel Hoi An",191],["888319","Phu Quoc","Aerum","Ann Hotel & Spa Phu Quoc",190],["302179","Nha Trang","Aerum","Diamond Bay Resort & Spa",189],["129322","Hoi An","Nhi","Mulberry Collection Silk Village",189],["328353","Da Nang","Mike","Grand Gold Hotel Da Nang",186],["671602","Hoi An","Nhi","New World Hoiana Hotel",186],["176187","Nha Trang","Aerum","Havana Nha Trang Hotel",185],["675297","Hanoi","Anna","Ramada Hotel & Suites by Wyndham Halong Bay View",185],["475246","Hoi An","Nhi","Hoi An CoCo River Resort & Spa",184],["130321","Hanoi","Andy","MK Premier Boutique Hotel",182],["1001199","Hanoi","Anna","The Q Boutique Hotel",182],["453535","Phan Thiet","Mike","Marina Bay Vung Tau Resort & Spa",181],["491209","Nha Trang","Aerum","Ivy Hotel Nha Trang",180],["717796","Ho Chi Minh","Mike","Eastin Grand Hotel Saigon",179],["221119","Da Nang","Anna","Monarque Hotel Danang",179],["306035","Phu Quoc","Aerum","Tom Hill Boutique Resort & Spa",179],["886616","Phan Thiet","Mike","SK Legend Vung Tau Hotel",178],["815890","Nha Trang","Lukas","Boma Resort Nha Trang",177],["680785","Hanoi","Anna","Dolce by Wyndham Hanoi Golden Lake",176],["505625","Nha Trang","Lukas","Virgo Hotel",176],["700008","Da Nang","Anna","Eden Plaza Danang",175],["135972","Hanoi","Anna","Hanoi Marvellous Hotel & Spa",175],["353957","Nha Trang","Lukas","Happy Light Central Nha Trang",174],["913420","Phu Quoc","Aerum","Roma Hotel Phu Quoc",173],["983128","Nha Trang","Lukas","Daphovina Hotel",172],["141613","Phu Quoc","Aerum","La Casa Resort Phu Quoc",171],["213135","Da Nang","Mike","Dana Marina Hotel",170],["327163","Ho Chi Minh","Aerum","Phuong Nam Resort",168],["700609","Ho Chi Minh","Anna","First hotel",167],["1001233","Hanoi","Andy","22Land Legend Residence",165],["824419","Da Nang","Nhi","Century Riverside Hue",163],["628632","Hanoi","Anna","Golden Silk Boutique Hotel",163],["322836","Nha Trang","Lukas","Libra Nha Trang Hotel",163],["252178","Da Nang","Nhi","Park View Hotel",163],["1001284","Phu Quoc","Aerum","Casepia Hotel Phu Quoc",160],["834072","ETC","Anna","Senna Wellness Retreat",160],["520032","Nha Trang","Aerum","TTC Hotel Michelia Nha Trang",159],["368134","Nha Trang","Lukas","Zenia Boutique Hotel Nha Trang",157],["945516","Ho Chi Minh","Mike","KunKin Garden Apartment",156],["1001276","ETC","Nhi","Charmant Suites Hotel",151],["521616","Hanoi","Anna","Shining Central Hotel & Spa",151],["708544","Da Lat","Lukas","Marigold Hotel Dalat",150],["309683","Phu Quoc","Aerum","Dusit Princess Moonrise Beach Resort Phu Quoc",147],["539483","Nha Trang","Lukas","Regalia Gold Hotel",147],["678951","Hoi An","Nhi","Emerald Hoi An Riverside Resort",146],["263017","Hanoi","Anna","Top Hotel",145],["739866","Hanoi","Anna","Sapa Cat Cat Hills Resort & Spa",143],["741441","Ho Chi Minh","Nhi","Fusion Original Saigon Centre",142],["934403","Da Lat","Lukas","New Century Dalat Hotel",142],["805524","Nha Trang","Aerum","The Costa Nha Trang Hotel",142],["684427","Hoi An","Nhi","Le Pavillon Gallery Hoi An Hotel & Spa",141],["851015","Phu Quoc","Aerum","Mercury Phu Quoc Resort & Villas",141],["648819","Phan Thiet","Mike","Muine Bay Resort",141],["660110","ETC","Hanny","Buon Ma Thuot Hotel",140],["698354","ETC","Hanny","Golden Boutique Hotel Mang Den",140],["699970","Hoi An","Nhi","Legacy Hoi An Resort",139],["749903","Nha Trang","Lukas","Orbit Resort & Spa",139],["263079","ETC","Nhi","Victory Hotel",139],["148336","Nha Trang","Aerum","Maple Leaf Hotel & Apartment",137],["203877","Phu Quoc","Aerum","Green Bay Phu Quoc Resort & Spa",136],["293686","Da Nang","Mike","Sepon Blue Hotel",136],["983182","Da Lat","Lukas","Tala Dalat Hotel",136],["144992","Phan Thiet","Mike","Victoria Phan Thiet Beach Resort & Spa",136],["886483","Nha Trang","Lukas","La Vague Hotel Nha Trang",134],["513856","Nha Trang","Lukas","Navada Beach Hotel",134],["161253","Hanoi","Anna","Somerset Grand Hanoi",133],["1001375","Hanoi","Andy","Wyndham Garden Legend Halong",133],["682655","Nha Trang","Aerum","Dendro Hotel Nha Trang",132],["202884","Phu Quoc","Aerum","The Palmy Phu Quoc Resort & Spa",130],["1001418","Hoi An","Nhi","Nesta Hoi An Resort & Spa",129],["821065","Nha Trang","Lukas","The Empyrean Cam Ranh Beach Resort",129],["210331","Da Nang","Mike","7 Seven Sea Hotel",127],["1001232","Da Nang","Mike","Phuc Long Luxury Hotel",126],["793334","Phu Quoc","Aerum","Leaf Hotel Phu Quoc",124],["1001231","Phan Thiet","Mike","Mana Mui Ne Beach Resort",124],["1001293","Ho Chi Minh","Nhi","La Palma Garden Sài Gòn Hotel",123],["886485","Da Lat","Lukas","Dalat Paradise Hotel",122],["700132","Phan Thiet","Mike","Premier Pearl Vung Tau",122],["850760","Phu Quoc","Aerum","Sea Sense Resort Phu Quoc",122],["433310","Phan Thiet","Mike","Vung Tau Riva Hotel",122],["140216","Nha Trang","Lukas","An Vista Hotel",121],["164884","Ho Chi Minh","Mike","Glenwood City Resort",121],["349893","Nha Trang","Aerum","Putin Nha Trang Hotel",121],["174754","Hoi An","Nhi","Hoi An Central Boutique Hotel and Spa",120],["673164","Hanoi","Andy","Paddington Hotel Ha Long",120],["786769","Phan Thiet","Mike","Hôtel D'Melin",119],["649716","Hanoi","Andy","Hotel du Parc Hanoi",119],["207461","Nha Trang","Aerum","Senkotel Nha Trang",119],["178803","Nha Trang","Aerum","TND Hotel Nha Trang",119],["361097","Nha Trang","Lukas","Sao Viet Hotel Nha Trang",118],["191013","Phan Thiet","Mike","Ho Tram Beach Boutique Resort & Spa",117],["781143","Hanoi","Andy","22Land Residence Hotel & Spa 52 Ngo Huyen",115],["857970","Hanoi","Anna","Fortuna Hotel Hanoi",115],["286433","Nha Trang","Aerum","Smile Hotel Nha Trang",115],["448116","Hanoi","Anna","The Oriental Jade Hotel",115],["674035","Hanoi","Anna","3T Hotel Hanoi",114],["1001346","Hanoi","Andy","Hotel de Lagom Hanoi",114],["110653","ETC","Nhi","Muong Thanh Luxury Can Tho Hotel",113],["962278","Ho Chi Minh","Hanny","Amanaki Thao Dien Hotel",111],["1001312","Phan Thiet","Mike","Joi Boutique Bai Truoc",111],["331379","Phu Quoc","Aerum","Summer Dream Hotel",111],["501961","Phan Thiet","Mike","TTC Hotel Phan Thiet",111],["1001235","Nha Trang","Lukas","Astica Hotel Nha Trang",110],["188336","ETC","Hanny","Muong Thanh Luxury Buon Ma Thuot Hotel",110],["907625","ETC","Hanny","SOJO Hotel Dak Lak",110],["191581","Hanoi","Andy","La Santé Hotel & Spa",109],["1001484","Hanoi","Andy","Maison Nha - Boutique Apartment (51A QK)",109],["251471","Nha Trang","Aerum","Quinter Central Nha Trang",108],["1001361","Hanoi","Andy","SC Luxury Hotel Halong",108],["1001541","Hanoi","Anna","San Quatorze Hotel",107],["956297","Nha Trang","Lukas","ELite Hotel Nha Trang",105],["367381","Hanoi","Andy","Roygent Parks Hanoi",105],["1001382","Ho Chi Minh","Nhi","TC Hotel Binh Duong New City",105],["860363","Nha Trang","Lukas","Tran Vien Dong Hotel",105],["668474","Hoi An","Nhi","Bel Marina Hoi An Resort",104],["901975","ETC","Hanny","Dankbaar Resort",104],["1001485","Hanoi","Andy","Maison Nha - Boutique Apartments - Truc Bach Lake",104],["857204","ETC","Hanny","Hon Co Resort Ca Na",103],["982789","Phan Thiet","Mike","Emerald Ho Tram Resort",102],["462790","Da Lat","Lukas","La Sapinette Hotel Dalat",102],["412951","Nha Trang","Lukas","Le's Cham Hotel",102],["1001291","Da Lat","Lukas","Golf Valley Hotel Dalat",100],["222345","Ho Chi Minh","Hanny","Maison De Camille Boutique Hotel",99],["995967","Hanoi","Andy","Westlake Pearl Aparthotel & Spa - By Pegasy Group",99],["694507","Hanoi","Andy","Affa Boutique Hotel",98],["808145","Phu Quoc","Aerum","Aquasun Hotel Phu Quoc",98],["182868","Hoi An","Nhi","Hoi An River Beach Resort & Residences",98],["771064","Phan Thiet","Mike","Vipol Mui Ne Hotel & Spa",98],["809933","ETC","Anna","Wyndham Grand Vedana Ninh Binh",98],["860531","Phan Thiet","Mike","Sea Lion Beach Resort & Spa Mui Ne",97],["251475","Nha Trang","Aerum","Sochi Hotel",97],["235199","Da Nang","Mike","Alan Sea Hotel Danang",96],["235094","ETC","Hanny","Casa Marina Resort",96],["703088","Da Nang","Mike","Muong Thanh Grand Da Nang Hotel",95],["373529","Da Nang","Mike","Rosamia Da Nang Hotel",95],["995733","Hoi An","Nhi","Sen Village Hoi An",95],["785885","ETC","Nhi","Sojo Hotel Hau Giang",95],["970334","Da Nang","Anna","Bliss Luxury Hotel (Formerly by Grand Sunrise 3 Hotel & Spa)",94],["139605","Da Nang","Anna","Hadana Boutique Hotel",94],["506400","ETC","Hanny","Hai Ba Trung Hotel & Spa",93],["141246","Nha Trang","Aerum","StarCity Nha Trang Hotel",93],["1001385","Hanoi","Anna","T Boutique Hotel",93],["325652","Hanoi","Anna","Aira Boutique Hanoi Hotel and Spa",92],["1001487","Hanoi","Andy","Maison Nha - Boutique Apartments - 16 Nguyen Khuyen",92],["605978","Nha Trang","Aerum","L'Alya Ninh Van Bay",90],["537839","Hanoi","Andy","Minasi HanoiOi Hotel",90],["886583","Hoi An","Anna","New World Hoiana Beach Resort",90],["145543","Hoi An","Nhi","Palm Garden Beach Resort & Spa",89],["830168","ETC","Nhi","Van Phat Riverside Hotel",89],["955303","Da Nang","Mike","Monalisa Luxury Hotel",88],["361092","Nha Trang","Aerum","Sea Pearl Hotel",88],["221234","Hanoi","Anna","Brandi Fuji Hotel",86],["389987","Nha Trang","Aerum","DTX Hotel Nha Trang",86],["995724","Ho Chi Minh","Hanny","22Land Hotel Saigon",85],["681047","Phu Quoc","Aerum","Famiana Resort & Spa",85],["622974","Da Nang","Nhi","White Lotus Hue Hotel",85],["638797","ETC","Hanny","Anya Premier Hotel Quy Nhon",84],["338046","Nha Trang","Aerum","Navy Hotel Cam Ranh",84],["781634","ETC","Anna","Muong Thanh Grand Dien Bien Phu Hotel",83],["477339","Hanoi","Anna","Oakwood Residence Hanoi",83],["886625","Nha Trang","Aerum","TTC Van Phong Bay Resort",83],["663227","ETC","Hanny","Athena Hotel Quy Nhon",82],["671396","Nha Trang","Aerum","Potique Hotel",82],["160024","Da Nang","Mike","Danaciti Hotel",81],["1001096","Da Nang","Anna","SOJO Hotel Da Nang",81],["135813","Da Lat","Lukas","Swiss-Belresort Tuyen Lam Dalat",81],["251396","Nha Trang","Aerum","TUI BLUE Nha Trang",81],["201902","Hanoi","Anna","Sapa Highland Resort & Spa",80],["1001322","Nha Trang","Lukas","Amiana Resort Cam Ranh",79],["114638","Nha Trang","Lukas","Dendro Gold Hotel",79],["1001319","Phu Quoc","Aerum","Luna Sol Apartment & Villas - Sunset & Firework Signature",79],["220639","Hanoi","Anna","Silk Path Grand Resort & Spa Sapa",79],["678537","Ho Chi Minh","Mike","White Lotus Hotel",79],["698551","Ho Chi Minh","Nhi","Rang Dong Hotel",78],["1001429","Hanoi","Andy","The Five Residences Hanoi",78],["886506","Nha Trang","Lukas","Wise Stay Gold Coast Nha Trang",78],["956887","Hanoi","Anna","Danitel Halong",77],["800156","Ho Chi Minh","Mike","Oakwood Hotel & Apartments Saigon",77],["960253","Da Lat","Lukas","Omirita Resort Dalat",77],["322999","Ho Chi Minh","Nhi","Silverland Ben Thanh Hotel",77],["420874","Ho Chi Minh","Nhi","Silverland Sil Hotel",76],["789173","Hoi An","Nhi","Thanh Binh Riverside Hoi An",76],["856615","Ho Chi Minh","Mike","Athena Hotel",75],["503742","Hoi An","Nhi","Cozy Savvy Boutique Hotel Hoi An",75],["501438","Da Lat","Lukas","Sandals Lily Hotel",75],["996462","Nha Trang","Lukas","Aquamarine Resort Cam Ranh",74],["1001445","Nha Trang","Lukas","Hermes Hotel Nha Trang",74],["671651","Phan Thiet","Mike","InterContinental Grand Ho Tram",74],["249179","Phan Thiet","Mike","Lan Rung Resort & Spa - Phuoc Hai Beach",74],["166251","Phan Thiet","Mike","Poulo Condor Boutique Resort & Spa",73],["513723","Da Lat","Lukas","Romeo & Juliet Dalat Resort",73],["161250","Ho Chi Minh","Anna","Somerset Chancellor Court",73],["186669","Ho Chi Minh","Nhi","The Myst Dong Khoi",73],["356680","Nha Trang","Lukas","Canary Nha Trang Hotel",72],["741450","Hanoi","Andy","Delasol Phat Linh Sapa Hotel",72],["449715","Ho Chi Minh","Mike","Diamond Hill Hotel",72],["900856","Phu Quoc","Aerum","JM Boutique Hotel",72],["757185","Da Lat","Lukas","Sandals Flora Hotel",71],["798697","Da Nang","Mike","Sanouva Danang Hotel",71],["450577","Nha Trang","Aerum","Apollo Nha Trang Hotel",70],["609951","Da Nang","Mike","Gold Plaza Hotel Da Nang",70],["502665","Nha Trang","Aerum","Green Hotel Nha Trang",70],["140164","Ho Chi Minh","Nhi","Silverland Jolie Hotel & Spa",70],["294644","ETC","Anna","Westlake Hotel & Resort Vinh Phuc",70],["794051","Da Nang","Anna","Wink Hotel Danang Centre",70],["739348","ETC","Hanny","Biet Dien Hotel",69],["1001504","Hanoi","Andy","Jade Boutique Hotel",69],["800769","ETC","Hanny","Odin Hotel Quy Nhon",69],["151539","Phu Quoc","Aerum","Saigon Phu Quoc Resort & Spa",69],["690000","Hanoi","Anna","Skylark Hotel",69],["407978","Da Nang","Mike","Sunny Ocean Hotel & Spa",69],["695740","Hanoi","Andy","Super Hotel Candle",69],["423757","Da Nang","Anna","The Code Hotel & Spa",69],["810334","Hanoi","Anna","BB Hotel Sapa",68],["159877","Da Lat","Lukas","Kings Hotel Dalat",68],["849784","Phu Quoc","Aerum","La Mer Resort Phu Quoc",68],["797808","Da Lat","Lukas","Sandals Camellia Hotel",68],["628463","Ho Chi Minh","Andy","The Odys Boutique Hotel",68],["445473","Ho Chi Minh","Mike","Winsuites Saigon Hotel",68],["605599","Da Nang","Mike","Da Nang - Mikazuki Japanese Resorts and Spa",67],["764010","Ho Chi Minh","Andy","Thanh Tai Hotel 1",67],["749044","Hanoi","Andy","22Land Residence Hotel & Spa 02 Nguyen Dinh Hoan",66],["1001030","Ho Chi Minh","Aerum","Bcons PS Bien Hoa",66],["177159","Ho Chi Minh","Nhi","Lavis 18 Residence",66],["174218","Phu Quoc","Aerum","La Veranda Resort Phu Quoc - MGallery",65],["1001353","ETC","Nhi","West Hotel",65],["740979","Hanoi","Andy","22Land Hotel & Residence",64],["481557","Da Nang","Mike","Nagila Boutique Hotel",64],["123489","Phan Thiet","Mike","Sammy Hotel Vung Tau",64],["209213","ETC","Nhi","Sunrise Tay Ninh Hotel",64],["772156","Da Nang","Mike","Cozy Danang Boutique Hotel",63],["528935","Da Lat","Lukas","Park Hotel Dalat",63],["731199","Hanoi","Anna","SOJO Hotel Ga Hanoi",63],["1001330","Ho Chi Minh","Anna","Kin Hotel Ly Tu Trong",62],["303538","Da Nang","Anna","Seashore Hotel - Apartment",62],["301648","Nha Trang","Aerum","Comodo Nha Trang Hotel (Asteria Comodo Nha Trang Hotel)",61],["738625","Nha Trang","Lukas","Green World Hotel Nha Trang",61],["852760","Nha Trang","Lukas","Muong Thanh Luxury Nha Trang Hotel",61],["897580","Hanoi","Andy","The Yacht Hotel by DC",61],["351162","Da Nang","Anna","TMS Hotel Da Nang Beach",61],["709542","ETC","Andy","Venus Hotel Tam Dao",61],["415170","Nha Trang","Aerum","Areca Hotel Nha Trang",60],["396775","Nha Trang","Lukas","Atlantic Nha Trang Hotel",60],["372426","Da Lat","Lukas","Sandals Hotel",60],["708562","Nha Trang","Aerum","Grand Gosia Hotel",59],["277038","Hoi An","Mike","Hoi An Rosemary Boutique Hotel & Spa",59],["789705","Da Nang","Mike","Melia Danang Beach Resort",59],["514735","Da Nang","Nhi","Mondial Hotel Hue",59],["1001297","ETC","Hanny","Ohana Village Resort",59],["1001209","Hanoi","Anna","Rue De L'amour Boutique Hotel Hanoi",59],["143373","Nha Trang","Lukas","Diamond Bay Nha Trang Hotel",58],["740280","ETC","Hanny","Fleur De Lys Hotel Quy Nhon",58],["858581","Phan Thiet","Mike","Sandunes Beach Resort & Spa",58],["1001306","ETC","Hanny","The Ocean Resort by Fusion Quy Nhon",58],["886619","Ho Chi Minh","Anna","The Royal LandPark - Phu My Hung",58],["146418","Hoi An","Nhi","Victoria Hoi An Beach Resort & Spa",58],["983131","Hanoi","Andy","22Housing Lake View Residence",57],["848249","Hanoi","Andy","22Land Lake View Hotel",57],["600624","Ho Chi Minh","Nhi","An Lam Retreats Saigon River",57],["174813","Da Nang","Anna","Risemount Premier Resort Da Nang",57],["1001395","ETC","Anna","Muong Thanh Luxury Dien Bien Hotel",56],["1001539","Ho Chi Minh","Anna","San Seize Hotel",56],["1001467","Ho Chi Minh","Andy","Anima Saigon Boutique Hotel",55],["959446","Ho Chi Minh","Aerum","Hung Huong Hotel",55],["1001102","Ho Chi Minh","Anna","Me Saigon Boutique Hotel",55],["845857","Hanoi","Andy","Minasi Premium Hotel",55],["179620","Hoi An","Nhi","TTC Hotel – Hoi An",55],["1001545","Nha Trang","Aerum","Champton Nha Trang Hotel",54],["567304","Da Lat","Lukas","Dalat Edensee Lake Resort & Spa",54],["152644","Da Nang","Mike","Grand Sea Hotel",54],["251468","Nha Trang","Aerum","Le Soleil Nha Trang Hotel",54],["831975","Hoi An","Nhi","Moodhoian Riverside Resort & Spa",54],["1001261","Hanoi","Andy","SUN RESIDENCES Managed by 22 Land Hospitality",54],["1001347","ETC","Hanny","A'dor Hotel & Spa Quy Nhon",53],["830427","Nha Trang","Lukas","Angella Hotel",53],["685169","Hanoi","Andy","Nesta Hotel Hanoi",53],["857254","Phan Thiet","Mike","New Wave Hotel Vung Tau",53],["907898","ETC","Nhi","SOJO Hotel Can Tho",53],["494808","ETC","Nhi","Con Khuong Resort Can Tho",52],["461992","Nha Trang","Aerum","Florida Hotel Nha Trang",52],["226803","ETC","Mike","Melia Vinpearl Ha Tinh",52],["286455","Da Nang","Mike","Alisia Hotel Da Nang",51],["886618","Nha Trang","Lukas","Best Western Premier Marvella Nha Trang",51],["890757","ETC","Hanny","L'amor Boutique Hotel",51],["343478","Da Nang","Anna","Muong Thanh Luxury Song Han Hotel",51],["1001090","Hanoi","Anna","Sapa TT Homestay & Swimming Pool",51],["152636","Da Nang","Anna","Serene Beach Hotel",51],["118691","Nha Trang","Aerum","Champa Island Nha Trang Resort Hotel & Spa",50],["850536","Hoi An","Nhi","Hotel Royal Hoi An - Gallery",50],["220645","ETC","Hanny","Muong Thanh Quy Nhon Hotel",50],["153381","ETC","Nhi","Ninh Kieu 2 Hotel",50],["485674","Phan Thiet","Mike","Novela Muine Resort & Spa",50],["435069","Ho Chi Minh","Aerum","Sen Viet Hotel",50],["330369","Ho Chi Minh","Nhi","Becamex Hotel New City",49],["855398","ETC","Hanny","Dakruco Hotel",49],["691720","Nha Trang","Lukas","Muong Thanh Grand Nha Trang Hotel",49],["886507","Phan Thiet","Mike","Ocean Star Resort",49],["213319","Phu Quoc","Aerum","Seashells Phu Quoc Hotel & Spa",49],["410686","Hanoi","Andy","Marina Ha Long Hotel",48],["1001398","Da Nang","Mike","Wyndham Soleil Danang",48],["178651","Phan Thiet","Mike","Bamboo Village Beach Resort & Spa",47],["128860","Phu Quoc","Aerum","Famiana Green Villa",47],["1001465","Da Nang","Mike","Radisson RED Danang",47],["982786","Hanoi","Andy","22Land Classic Hotel",46],["779057","Da Nang","Mike","A La Carte Da Nang Beach",46],["166921","Da Nang","Nhi","ÊMM Hotel Hue",46],["886492","ETC","Hanny","La Casa Tuy Hoa",46],["361438","Da Lat","Lukas","Minh Chien Hotel",46],["687595","Hanoi","Andy","Paradise Suites Hotel",46],["1001317","ETC","Anna","Adamo Hotel Hung Yen",45],["124162","Hoi An","Mike","Hoi An Garden Palace & Spa",45],["517161","Nha Trang","Lukas","Nalicas Hotel",45],["803104","Hanoi","Andy","Royal Halong Hotel",45],["503223","Nha Trang","Lukas","The Summer Nha Trang Hotel",45],["428606","Hanoi","Anna","Western Hanoi Boutique Hotel",45],["154588","Da Nang","Mike","Danang Han River Hotel",44],["143269","Da Nang","Anna","Grand Tourane Hotel",44],["152029","Phan Thiet","Mike","Lotus Vung Tau Resort",44],["508720","ETC","Hanny","Seaside Boutique Resort Quy Nhon",44],["1001305","Hanoi","Andy","22Land Cloud Hotel",43],["356449","Ho Chi Minh","Andy","Amanaki Saigon Boutique Hotel",43],["801890","Hoi An","Anna","Hoiana Residences",43],["1001198","Da Nang","Nhi","KOBI Onsen Resort Hue Affiliated by Melia",43],["220644","ETC","Anna","Muong Thanh Grand Tuyen Quang Hotel",43],["133730","Phu Quoc","Aerum","The Praha Hotel Phu Quoc",43],["166915","Da Lat","Lukas","TTC Hotel Dalat",43],["886567","Ho Chi Minh","Mike","TTC Hotel Deluxe - Airport",43],["970001","Phan Thiet","Mike","Asteria Mui Ne Resort",42],["947519","Phan Thiet","Mike","Central Hotel by Joi Hospitality",42],["315278","Nha Trang","Lukas","Imperial Nha Trang Hotel",42],["113687","Ho Chi Minh","Aerum","Ramada Encore by Wyndham Saigon D1 (Formerly M Boutique Hotel Saigon)",42],["230461","Da Nang","Mike","Ritzy Boutique Hotel Da Nang",42],["442044","Da Nang","Mike","Roliva Hotel & Apartment Danang",42],["732162","ETC","Anna","SOJO Hotel Nam Dinh",42],["119178","Nha Trang","Lukas","Alana Nha Trang Beach Hotel",41],["978987","Hanoi","Andy","Muse Hanoi Boutique Apartment",41],["400688","Hoi An","Nhi","The Pearl Hoi An ( Former Citadines Pearl Hoi An)",41],["271969","Nha Trang","Aerum","Boton Blue Hotel & Spa",40],["348402","Ho Chi Minh","Hanny","Happy Life Grand Hotel & Sky Bar",40],["503729","Da Nang","Anna","Maximilan Danang Beach Hotel",40],["120049","Da Nang","Anna","Cicilia Hotels & Spa Danang Powered by ASTON",39],["799934","Da Nang","Mike","Furama Villas Danang",39],["591036","Hanoi","Andy","The Hanoi Club Hotel & Residences",39],["491061","Da Nang","Mike","TIA Wellness Resort",39],["1001462","Hanoi","Andy","Dusit Le Palais Tu Hoa Hanoi",38],["661030","ETC","Hanny","Maia Quy Nhon – A Fusion Resort",38],["157395","ETC","Nhi","Muong Thanh Luxury Ca Mau Hotel",38],["289649","Ho Chi Minh","Anna","Ramana Saigon Hotel",38],["370496","Da Nang","Anna","DLG Hotel Danang",37],["349367","ETC","Mike","Melia Vinpearl Quang Binh",37],["1001412","Hanoi","Andy","Muse Hanoi Serenity Suites",37],["782858","Ho Chi Minh","Nhi","Silverland Sakyo Hotel & Spa",36],["529997","Hanoi","Anna","The Q Hotel",36],["1001384","Phan Thiet","Mike","Thuy Van Hotel Vung Tau",36],["513115","ETC","Hanny","Anya Hotel Quy Nhon",35],["658207","Hanoi","Andy","DeLaSea Ha Long Hotel",35],["297078","Phu Quoc","Aerum","Homestead Seaview Phu Quoc Hotel",35],["302253","Phan Thiet","Mike","Palace Hotel Vung Tau",35],["139962","Ho Chi Minh","Andy","Roseland Corp Hotel",35],["368165","Ho Chi Minh","Andy","Roseland Sweet Hotel",35],["108739","Nha Trang","Lukas","Sandals Island Hotel",35],["908868","Ho Chi Minh","Nhi","Silverland Mây Hotel",35],["660031","Phan Thiet","Mike","The Cliff Resort & Residences",35],["988125","Phan Thiet","Mike","The Palms Hotel Phan Thiet",35],["414951","Ho Chi Minh","Mike","Villa Song Saigon",35],["661170","Ho Chi Minh","Hanny","Happy Life Green Hotel",34],["729011","ETC","Anna","Mandala Hotel & Suite Bac Giang",34],["960256","ETC","Anna","Mandala Retreats Kim Boi",34],["1001300","Nha Trang","Aerum","Nha Trang Horizon Hotel",34],["661324","Hanoi","Anna","D'Lecia Ha Long",33],["215859","Nha Trang","Lukas","Gosia Hotel",33],["1001366","Phan Thiet","Mike","LCV Mui Ne Resort",33],["1001078","Ho Chi Minh","Anna","M Village Thach Thi Thanh",33],["653603","Nha Trang","Nhi","Mia Resort Nha Trang",33],["1001542","Hanoi","Anna","San Quinze Hotel",33],["263044","Nha Trang","Lukas","Xavia Hotel",33],["213579","Da Nang","Mike","Altara Suites",32],["780384","Nha Trang","Lukas","Ana Mandara Cam Ranh",32],["1001316","Da Nang","Mike","Delicate Hotel",32],["1001301","Phu Quoc","Aerum","Palm Hill Resort Phu Quoc",32],["1001195","Hanoi","Andy","22Land Cosmos Hotel",31],["161624","Hoi An","Nhi","ÊMM Hotel Hoi An",31],["558012","Ho Chi Minh","Nhi","La Vela Saigon Hotel",31],["1001550","Hoi An","Nhi","Metrolux City Contemporary Hotel",31],["830297","Hanoi","Andy","Minasi Hotel & Spa",31],["945851","Nha Trang","Aerum","Navy Hotel Nha Trang",31],["575390","Phu Quoc","Aerum","Paralia Khem Beach Phu Quoc Hotel",31],["905906","Da Nang","Mike","Ruby Star Da Nang",31],["1001314","Nha Trang","Aerum","The Morning Glow Boutique Hotel",31],["188474","Da Lat","Lukas","Tulip Hotel III",31],["1001308","Da Lat","Lukas","Wisteria Hotel Dalat",31],["833435","Nha Trang","Lukas","DB Hotel Nha Trang",30],["778342","Da Nang","Nhi","Eldora Hotel",30],["1001436","Hanoi","Andy","Hanoi Riverview Boutique Hotel & Apartment",30],["689039","ETC","Hanny","Hoan My Resort Ninh Chu",30],["556176","Ho Chi Minh","Aerum","Icon Saigon _ LifeStyle Design Hotel",30],["168607","Hanoi","Anna","London Hanoi Hotel",30],["973319","Hoi An","Nhi","My Son Boutique Hotel & Spa",30],["734430","Ho Chi Minh","Hanny","Northern Charm Hotel",30],["755934","Phan Thiet","Mike","Orson Hotel & Resort Con Dao",30],["343061","Ho Chi Minh","Andy","Palace Hotel Saigon",30],["1001569","Ho Chi Minh","Nhi","Amaya Saigon Boutique Hotel",29],["124621","Da Nang","Anna","Avatar Da Nang Hotel",29],["703029","Phan Thiet","Mike","Carmelina Beach Resort",29],["906279","Da Lat","Lukas","Cherry Luxury Hotel",29],["229424","Da Nang","Mike","Grandvrio Ocean Resort Danang",29],["251296","Da Lat","Lukas","Ladalat Hotel",29],["1001413","Hanoi","Andy","Muse Hanoi Luxury Apartment -  D'Eldorado",29],["108718","Hoi An","Nhi","River Suites Hoi An",29],["171127","Hanoi","Anna","The Chi Boutique Hotel",29],["892998","Hanoi","Andy","The Watson Premium Halong Hotel",29],["179015","Hanoi","Anna","West Lake 254D Hotel & Residence",29],["195247","Nha Trang","Lukas","Duyen Ha Resort Cam Ranh",28],["161220","Phu Quoc","Aerum","Elwood Premier Resort Phu Quoc",28],["723141","ETC","Hanny","FLC City Hotel Beach Quy Nhon",28],["665068","Phan Thiet","Mike","Green Hotel Vung Tau",28],["982784","Ho Chi Minh","Aerum","Hidden Mansions Saigon Resort",28],["983134","Hanoi","Andy","La Passion Classic Hotel",28],["983129","Ho Chi Minh","Anna","M Village Ly Tu Trong",28],["789361","Da Nang","Mike","Menora Grand Da Nang",28],["1001318","Hanoi","Anna","Mộc Home Sapa Center",28],["682598","Phan Thiet","Mike","Muong Thanh Holiday Vung Tau Hotel",28],["963273","Hanoi","Andy","Nesta Hotel & Spa",28],["733189","ETC","Anna","SOJO Hotel Hoa Binh",28],["889790","Ho Chi Minh","Mike","Sotetsu Grand Frésa Saigon",28],["115003","Da Lat","Lukas","Tulip Hotel II",28],["107993","Da Nang","Anna","Vanda Hotel",28],["405520","Da Lat","Lukas","Colline Dalat",27],["953517","Da Lat","Lukas","Goldient Boutique Hotel",27],["292150","Hanoi","Anna","Grand Cititel Hanoi Hotel",27],["111110","Hoi An","Nhi","Hoi An Ancient House Resort & Spa",27],["831709","ETC","Anna","Lalita Tam Coc Resort & Spa",27],["1001488","Hanoi","Andy","Maison Nha - Boutique Apartments - 17 Ton That Thiep",27],["352666","Phu Quoc","Aerum","Radisson Blu Resort Phu Quoc",27],["661318","Da Nang","Nhi","Silk Path Grand Hue Hotel & Spa",27],["141139","Ho Chi Minh","Anna","The Airport Hotel",27],["181933","Nha Trang","Nhi","An Lam Retreats Ninh Van Bay",26],["979162","Ho Chi Minh","Anna","Kin Wander Trung Son",26],["551715","Phan Thiet","Mike","Lotus Mui Ne Resort & Spa",26],["235093","Da Nang","Anna","New Orient Hotel Da Nang",26],["1001432","Hanoi","Andy","Pegasy Premium Suites & Residence Westlake",26],["1001582","Da Lat","Lukas","Best Western Premier Imperial Dalat",25],["662532","Nha Trang","Aerum","Blue Pearl Nha Trang Hotel",25],["960245","Nha Trang","Aerum","Boutik Cham Hotel Nha Trang",25],["177763","ETC","Hanny","FLC Luxury Hotel Quy Nhon",25],["699961","Da Nang","Anna","Holiday Beach Hotel Danang",25],["1001296","Ho Chi Minh","Nhi","La Bonita Hotel And Apartments",25],["1001292","Ho Chi Minh","Nhi","LA CASONA HOTEL",25],["218057","Phu Quoc","Aerum","Lahana Resort Phu Quoc",25],["665977","ETC","Anna","Lalita Boutique Hotel & Spa Ninh Binh",25],["735676","Ho Chi Minh","Nhi","EMM Hotel Saigon",24],["1001510","Hanoi","Anna","M Village Hotel Kim Ma",24],["949510","Hanoi","Anna","Moc Home Sapa",24],["165524","Hanoi","Anna","O'Gallery Premier Hotel & Spa",24],["1001493","Da Nang","Lukas","Sandals Stay Hotel",24],["109838","Hanoi","Anna","The Ann Hanoi Hotel & Spa",24],["896487","ETC","Anna","Emeralda Resort Tam Coc",23],["857921","Phan Thiet","Mike","Fleur de Lys Resort & Spa Long Hai",23],["128479","Hoi An","Nhi","Hoi An Sincerity Hotel and Spa",23],["703806","Phan Thiet","Mike","Le Palmier Ho Tram",23],["350847","Da Nang","Nhi","Melia Vinpearl Hue",23],["607907","Hanoi","Andy","Mina Hotel & Spa",23],["886510","Da Lat","Lukas","Sandals Vista Hotel",23],["931843","Ho Chi Minh","Anna","Sazi Hotel Ben Thanh",23],["161249","Ho Chi Minh","Anna","Somerset Ho Chi Minh",23],["830414","Da Lat","Lukas","TTC Hotel Ngoc Lan",23],["559223","Ho Chi Minh","Anna","BLESSED Hotel",22],["241590","Nha Trang","Aerum","Bonjour Nha Trang Hotel",22],["456043","Nha Trang","Lukas","DQua Hotel",22],["471966","Nha Trang","Lukas","Em Oi Boutique Hotel",22],["665197","ETC","Anna","Hoang Son Peace Hotel",22],["373586","Ho Chi Minh","Aerum","Lotus Saigon Hotel",22],["194167","ETC","Mike","Melia Vinpearl Cua Hoi Beach Resort",22],["956597","ETC","Anna","MT Collection Hotel",22],["331235","Phu Quoc","Aerum","Thien Thanh Phu Quoc Resort",22],["1001205","Ho Chi Minh","Anna","T-Ritz Sai Gon Hotel & Apartment",22],["1001310","Phan Thiet","Mike","Joi Hospitality - Front Beach",21],["1001311","Phan Thiet","Mike","Joi Hospitality - Hoang Anh",21],["886617","Da Lat","Lukas","Kim Resort (Former Rung La Kim Resort)",21],["834721","Phan Thiet","Mike","Petro House Vung Tau (Block A)",21],["1001390","ETC","Hanny","Sala Quynhon Beach Hotel",21],["510767","Phu Quoc","Aerum","Sea Breeze Resort Phu Quoc",21],["229136","Hanoi","Anna","Sunway Hotel Hanoi",21],["335818","Phan Thiet","Mike","Vias Hotel Vung Tau - Inclusive Transportation",21],["1001285","Phu Quoc","Aerum","Wyndham Villas Phu Quoc",21],["777206","Hanoi","Andy","De Syloia Hotel",20],["1001333","Phu Quoc","Aerum","Elyday - La Isla Apartments & Villas",20],["148783","Phan Thiet","Mike","Grand Hotel Vung Tau",20],["959965","Ho Chi Minh","Mike","KunKin Luxury Apartment",20],["389409","Da Nang","Mike","Menora Premium Da Nang",20],["330376","Da Lat","Lukas","Roy Dala Hotel",20],["404232","Nha Trang","Lukas","Sky Beach D20 Nha Trang",20],["182082","ETC","Nhi","TTC Hotel - Can Tho",20],["152335","ETC","Nhi","Victoria Chau Doc Hotel",20],["210490","Hanoi","Anna","Hanoian Central Hotel & Spa",19],["830192","ETC","Nhi","Linh Phuong 6 Hotel",19],["547470","Phu Quoc","Aerum","M Hotel Phu Quoc",19],["272367","ETC","Anna","Mai Chau Hideaway Lake Resort",19],["389454","Nha Trang","Lukas","Muong Thanh Luxury Khanh Hoa Hotel",19],["982792","Hanoi","Anna","Oakwood Ha Long",19],["711699","Nha Trang","Lukas","Pax Ana Doc Let Resort & Spa",19],["567245","Da Lat","Lukas","Sandals Star Hotel",19],["554255","Nha Trang","Lukas","Selectum Noa Resort Cam Ranh",19],["790971","Ho Chi Minh","Nhi","Becamex Hotel Thu Dau Mot",18],["825631","Hanoi","Andy","Halong Capella Cruise",18],["1001535","Hanoi","Andy","Hotel Soleil Halong, Trademark Collection by Wyndham",18],["965691","Ho Chi Minh","Hanny","Kin Wander Tan Quy",18],["1001309","Da Nang","Mike","Palazzo Cozy Hotel & Spa",18],["720667","Ho Chi Minh","Anna","Somerset Feliz Ho Chi Minh City",18],["543732","Phu Quoc","Aerum","Stellar Hotel Phu Quoc",18],["1001523","Nha Trang","Lukas","W Premium Nha Trang",18],["886569","Da Nang","Anna","Yarra Ocean Suites Danang",18],["781847","Ho Chi Minh","Nhi","Acnos Grand Hotel",17],["906024","Hoi An","Nhi","Anmira Resort and Spa Hoi An by The Unlimited Collection",17],["737238","Hanoi","Anna","Chalcedony Hotel",17],["1001242","Nha Trang","Lukas","December Hotel",17],["380027","Nha Trang","Lukas","Emerald Bay Hotel & Spa",17],["194789","Hoi An","Nhi","Happy Life Memories Hoi An Hotel & Spa",17],["1001081","Ho Chi Minh","Anna","M Village Dien Bien Phu Q3",17],["237348","Nha Trang","Lukas","Queen Ann Nha Trang Hotel",17],["350684","Phan Thiet","Mike","Romana Resort & Spa",17],["1001331","Ho Chi Minh","Hanny","Simmi 6 Hotel & Apartment",17],["1001425","Ho Chi Minh","Andy","Thanh Tai Hotel 2",17],["618002","Nha Trang","Lukas","Wise Stay Scenia Bay Nha Trang",17],["574042","Hanoi","Anna","Wyndham Skylake Resort & Villas",17],["1001435","Hanoi","Anna","Babeeni Family Hotel",16],["1001394","Da Lat","Lukas","Lumina Dalat Premium",16],["469767","Ho Chi Minh","Nhi","Mia Saigon - Luxury Boutique Hotel",16],["294391","Ho Chi Minh","Andy","Palago Hotel - Binh Thanh District",16],["788458","Hanoi","Anna","Sojo Hotel Lao Cai",16],["577219","Hoi An","Mike","The Five Villas & Resort Quangnam Danang",16],["519255","ETC","Nhi","Viet Uc Hotel Ben Tre",16],["809430","Ho Chi Minh","Aerum","Boss Palace Hotel",15],["1001295","Ho Chi Minh","Nhi","La Serena Boutique Hotel",15],["1001519","Hanoi","Anna","Lam Anh 3 Hotel NGOẠI Giao ĐOÀN",15],["341836","Hanoi","Andy","Mercure Hanoi La Gare",15],["786342","ETC","Anna","Muong Thanh Holiday Quang Binh Hotel",15],["124556","Phan Thiet","Mike","Royal Hotel Vung Tau",15],["176923","Da Nang","Mike","Sofia Suite Hotel Da Nang",15],["749271","ETC","Anna","SOJO Hotel Lang Son",15],["188147","Hanoi","Anna","The Lapis Hotel",15],["439389","Phan Thiet","Mike","TTC Resort – Ke Ga",15],["143921","Hanoi","Anna","BB Sapa Resort & Spa",14],["1001472","Da Nang","Mike","Centre Point Da Nang Hotel & Residence",14],["580133","Hanoi","Andy","D’Lioro Hotel & Resort",14],["323484","Da Lat","Lukas","Hotel Du Lys",14],["540340","Phan Thiet","Mike","ibis Styles Vung Tau",14],["1001414","Hanoi","Andy","Muse Hanoi PentStudio West Lake",14],["536499","Da Nang","Mike","Sofiana My Khe Hotel & Spa",14],["1001598","Hanoi","Andy","Westlake Pearl Suites & Spa - By Pegasy Group",14],["105433","Nha Trang","Lukas","Cam Ranh Riviera Beach Resort & Spa",13],["1001277","Da Nang","Anna","Doha Central Bliss Da Nang Hotel By Haviland",13],["1001103","Ho Chi Minh","Hanny","Kin Wander Tan Binh, The Mountain",13],["893016","Nha Trang","Aerum","Moon Light Hotel Nha Trang",13],["506308","Ho Chi Minh","Nhi","New Pacific Hotel",13],["1001328","Phu Quoc","Aerum","Sakurakyo Hotel & Spa- Free Hon Thom Island Waterpark Cable Car & Sunset Town Tour",13],["1001455","Phu Quoc","Aerum","Thala Hotel Sorrento",13],["812154","Hanoi","Andy","The Almin Hotel",13],["464470","Da Nang","Anna","CN Palace Boutique Hotel & Spa",12],["348186","Phan Thiet","Mike","DIC Star Landmark Vung Tau",12],["651064","Da Lat","Lukas","Du Parc Hotel Dalat",12],["1001489","Hanoi","Andy","Ha Long Essence Hotel",12],["533544","ETC","Anna","Le Champ Tu Le Resort Hot Spring & Spa",12],["886494","ETC","Hanny","Le Mint Hotel Quy Nhon",12],["264114","Ho Chi Minh","Andy","Le Saigon Hotel",12],["1001363","Hanoi","Andy","Nam Dat Hotel by D'Lecia Ha Long",12],["182089","Phan Thiet","Mike","Phu Hai Beach Resort & Spa",12],["653594","ETC","Anna","The Vissai Hotel Ninh Binh",12],["1001583","Hanoi","Anna","Tonkin Luxury Boutique Hotel & Spa",12],["852740","Hanoi","Anna","Western Hanoi Hotel",12],["1000766","Nha Trang","Lukas","Avari Hotel",11],["886505","ETC","Hanny","Cali Hotel Quy Nhon",11],["346069","Hoi An","Nhi","Gem Riverside Hotel Hoi An",11],["945879","Hanoi","Andy","Hanoi Calido Hotel",11],["754489","ETC","Hanny","Mandala Hotel & Spa Phu Yen",11],["659023","Phan Thiet","Mike","Marina Bay Con Dao",11],["401833","ETC","Hanny","Mento Hotel",11],["317354","Da Lat","Lukas","Muong Thanh Holiday Da Lat Hotel",11],["141043","Phu Quoc","Aerum","Phu Quoc Ocean Pearl Hotel",11],["1001196","Hoi An","Nhi","Robinson Nam Hoi An",11],["1000706","Ho Chi Minh","Anna","The Royal Vista - Phu My Hung",11],["983921","Phan Thiet","Mike","VICTORY HOTEL VUNGTAU",11],["1001417","Da Nang","Mike","Yes Hotel Da Nang",11],["579204","Hanoi","Andy","22HOUSING Apartment Vinhomes Metropolis",10],["645725","Ho Chi Minh","Mike","Aquari Hotel",10],["1001534","Ho Chi Minh","Aerum","Bcons City Hotel",10],["998568","Phan Thiet","Mike","Blooming Lotus Resort",10],["606106","Ho Chi Minh","Andy","Bong Sen Hotel Saigon",10],["176338","Hanoi","Andy","Coco Hotel Hanoi",10],["899305","Ho Chi Minh","Nhi","DAI NAM BOUTIQUE HOTEL",10],["118382","Hoi An","Anna","Hadana Boutique Resort HoiAn",10],["535099","Da Nang","Anna","Hilton Garden Inn Da Nang",10],["199349","Hoi An","Nhi","La Siesta Hoi An Resort & Spa",10],["294499","Hanoi","Anna","Lacasa Sapa Hotel",10],["852238","Hoi An","Nhi","Little Residence - A Boutique Hotel & Spa",10],["543772","Da Nang","Mike","Minh Toan Safi Ocean Hotel",10],["807239","Phan Thiet","Mike","Movenpick Resort Phan Thiet",10],["187664","Ho Chi Minh","Anna","New Space Hotel Airport",10],["168971","ETC","Nhi","Ninh Kieu Riverside Hotel",10],["181225","Phan Thiet","Mike","Rex Hotel",10],["735584","ETC","Anna","SOJO Hotel Viet Tri",10],["886496","Da Lat","Lukas","Stillus Boutique Hotel",10],["144994","ETC","Nhi","Victoria Can Tho Resort",10],["651328","Hoi An","Nhi","Alba Spa Hotel",9],["499401","ETC","Nhi","Can Tho Ecolodge",9],["969348","Hoi An","Nhi","Cozy An Boutique Hotel Hoian",9],["660428","Da Nang","Mike","Haian Riverfront Danang Hotel",9],["1001544","Hanoi","Anna","Jacayl Hotel",9],["200805","Hoi An","Nhi","Lantana Riverside Hoi An Hotel & Spa",9],["1001556","Ho Chi Minh","Anna","M Village Living 59 Thao Dien",9],["1001420","ETC","Nhi","Mekong Silt Ecolodge",9],["338701","Da Lat","Lukas","Memories Hotel",9],["1001320","Da Nang","Anna","Minh Toan Athena Hotel",9],["708640","ETC","Hanny","Sam Quang Binh Hotel",9],["1000115","Hanoi","Anna","Sapa J&K Homestay & Swimming Pool",9],["412995","ETC","Hanny","Stelia Beach Resort",9],["101336","Phan Thiet","Mike","Terracotta Resort & Spa",9],["385033","Da Lat","Lukas","Tulip City View Hotel",9],["238504","Da Nang","Anna","Wyndham Danang Golden Bay Hotel",9],["960255","Hanoi","Andy","22housing Residence Suites",8],["1001337","Hanoi","Andy","Amour Resort Bavi",8],["672232","ETC","Nhi","Diamond Stars Ben Tre Hotel",8],["678107","Hanoi","Anna","Hillary Hotel Hanoi",8],["1001329","Da Nang","Mike","Lunar Hotel",8],["253211","Da Lat","Lukas","Mai Thang Hotel",8],["1001315","Da Nang","Mike","Palazzo Luxury Danang",8],["1001341","Phan Thiet","Mike","Pandora Sand Hill",8],["852675","Hoi An","Nhi","Royal Riverside Hoi An Hotel",8],["1001573","Hoi An","Nhi","Soluna D'Annam - The Art of Hoi An Relaxation",8],["670101","Ho Chi Minh","Anna","Somerset Vista Ho Chi Minh City",8],["1001565","Ho Chi Minh","Nhi","Zeus Living - Harmony Hideout",8],["171255","Da Lat","Lukas","Ana Mandara Villas Dalat Resort & Spa",7],["853564","Hanoi","Andy","Apricot Hotel",7],["1001399","Da Lat","Lukas","Bach Place Dalat",7],["133602","Phu Quoc","Aerum","Cottage Village",7],["1001263","Phan Thiet","Lukas","Edensee Ke Ga Beach Resort",7],["994913","Ho Chi Minh","Nhi","El Ocaso Boutique Hotel",7],["1001490","Hanoi","Andy","Ha Long Essence Premium Hotel",7],["967926","Phan Thiet","Mike","Joi Hospitality - KP House",7],["114974","Hoi An","Nhi","Lantana Boutique Hotel Hoi An",7],["494876","Phu Quoc","Aerum","L'Azure Resort and Spa",7],["975962","Hanoi","Andy","Palago Boutique Hanoi Hotel",7],["752163","ETC","Hanny","Sala Grand Tuy Hoa Hotel",7],["682597","Da Lat","Lukas","Saphir Dalat Hotel",7],["732164","ETC","Anna","SOJO Hotel Thai Binh",7],["1001088","Hanoi","Anna","The Legend Hanoi Hotel",7],["166923","ETC","Andy","The Tray Hotel Hai Phong",7],["1001106","Hanoi","Andy","22Land Heritage Hotel & Retreat",6],["195984","Phu Quoc","Aerum","Anja Beach Resort & Spa",6],["576406","Nha Trang","Aerum","Crown Hotel Nha Trang",6],["791116","ETC","Nhi","HANZ Premium MaiVy Hotel Tay Ninh",6],["1001416","ETC","Nhi","Luxhome Mekong Hotel",6],["248577","Hanoi","Anna","Oriental Suites Hotel & Spa",6],["482162","Nha Trang","Lukas","Radisson Blu Resort Cam Ranh",6],["621562","Hoi An","Nhi","Shining Riverside Hoi An Boutique and Spa",6],["1001386","Hanoi","Anna","Skylark Boutique Hotel",6],["703441","ETC","Hanny","Vietnam Taste Hotel Quy Nhon - Beachfront",6],["832853","Da Nang","Anna","Wink Hotel Danang Riverside",6],["994225","Hanoi","Andy","Wyndham Garden Sonasea Van Don",6],["429661","Nha Trang","Lukas","Art Nest Hotel Nha Trang",5],["955301","ETC","Anna","Athena Premier Resort Ninh Binh",5],["776717","Hoi An","Nhi","Bellerive Hoi An Hotel and Spa",5],["748972","ETC","Hanny","Canary Gold Hotel Quy Nhon",5],["848267","ETC","Nhi","Cantho Eco Resort",5],["1001441","Hanoi","Anna","Grandview Hotel & Residence Hanoi",5],["1001529","Hoi An","Nhi","Moire Hoi An, Vignette Collection by IHG",5],["933502","Hanoi","Andy","Nesta - The Grand Hao Nam",5],["124176","Ho Chi Minh","Andy","Park Hyatt Saigon",5],["975902","Ho Chi Minh","Nhi","Spring House Hotel",5],["982785","Hoi An","Nhi","Sứ Retreat Hoi An",5],["103521","Ho Chi Minh","Anna","Sunflowers Hotel Airport",5],["1001280","Da Nang","Mike","T.26 Hotel",5],["666719","Phan Thiet","Mike","The Cap Hotel",5],["343262","Phan Thiet","Mike","The IMPERIAL Vung Tau Hotel",5],["1001444","Ho Chi Minh","Anna","The Royal Healing - Phu My Hung",5],["114996","Da Lat","Lukas","Tulip Hotel",5],["404246","Nha Trang","Lukas","Vesna Hotel",5],["638241","Phan Thiet","Mike","Villa Del Sol Beach Resort & Spa",5],["1001190","Hoi An","Nhi","White Lotus Hotel Hoian",5],["980041","Hanoi","Anna","Wil'que Hotel",5],["798724","Hoi An","Nhi","Wyndham Garden Hoi An Cua Dai Beach",5],["1001031","Ho Chi Minh","Mike","Amila Hotel by Sazi",4],["650522","Da Nang","Nhi","Angsana Lang Co",4],["120081","ETC","Nhi","Ben Tre Riverside Resort",4],["662366","Da Nang","Anna","Canvas Danang Beach Hotel",4],["299497","Da Lat","Lukas","Dalat Palace Heritage Hotel",4],["1001508","Ho Chi Minh","Anna","Express by M Village 46 Thao Dien",4],["834458","Hanoi","Andy","Grand K Hotel Suites Hanoi",4],["1001491","Hanoi","Andy","Ha Long Essence Boutique Hotel (Palette Collect's Boutique)",4],["805285","Hanoi","Andy","Ha Long Essence Classic Hotel",4],["168934","Da Lat","Lukas","Iris Dalat Hotel",4],["170579","Hoi An","Nhi","Lasenta Boutique Hotel Hoian",4],["354250","ETC","Nhi","Linh Phuong 2 Hotel",4],["187697","Phu Quoc","Aerum","Muong Thanh Luxury Phu Quoc Hotel",4],["411053","Da Lat","Lukas","New Life Hotel Dalat",4],["862436","Hanoi","Andy","Nhat Ha Maison Hotel",4],["113786","Hanoi","Anna","Pan Pacific Hanoi",4],["1001557","Phan Thiet","Mike","Pandora Beach Mui Ne Retreat",4],["140072","Da Nang","Anna","Royal Lotus Hotel Da Nang",4],["732161","ETC","Anna","SOJO Hotel Bac Giang",4],["1001548","Da Lat","Lukas","Sweet Lavender Hotel",4],["973649","Phan Thiet","Mike","Wonderland Resort Phan Thiet",4],["963521","Hoi An","Nhi","Amina Lantana Hoi An Hotel & Spa",3],["270784","Phan Thiet","Mike","Anantara Mui Ne Resort",3],["387146","Da Nang","Anna","AVORA Boutique Hotel",3],["650121","Da Nang","Nhi","Banyan Tree Lang Co",3],["196724","Phan Thiet","Mike","Ca Ty Muine Resort",3],["310129","Ho Chi Minh","Nhi","Cicilia City Hotel Saigon Center",3],["1001095","ETC","Nhi","Con Phung Resort Mekong",3],["1001424","Ho Chi Minh","Andy","Dahlialand Saigon Hotel",3],["718398","Hanoi","Anna","Hanoi Larosa Hotel",3],["588032","Hoi An","Anna","Hoiana Hotel & Suites",3],["1001428","Nha Trang","Lukas","K' Sea View Arena Cam Ranh",3],["1001443","Nha Trang","Lukas","Kim Thanh Boutique Nha Trang",3],["995748","Da Nang","Mike","KOI Resort & Residence Da Nang",3],["275779","Hoi An","Nhi","Laluna Hoi An Riverside Hotel & Spa",3],["549332","Phan Thiet","Mike","Le Viva Mui Ne Resort",3],["580384","Phan Thiet","Mike","Mercure Vung Tau",3],["234816","Da Nang","Mike","Mitisa Hotel",3],["430820","Hoi An","Nhi","My Son Heritage Resort And Spa",3],["664368","Nha Trang","Lukas","Nhi Phi Hotel Nha Trang",3],["209006","Ho Chi Minh","Nhi","Oscar Saigon Hotel",3],["886661","ETC","Nhi","Phu Cuong Hotel Ca Mau",3],["1001101","Phu Quoc","Aerum","Soul Boutique Hotel Phu Quoc",3],["850709","Ho Chi Minh","Mike","The Reverie Saigon",3],["685364","Ho Chi Minh","Anna","The Royal Homies - Phu My Hung",3],["1001515","Hoi An","Nhi","The Saga Hotel Hoi An",3],["712837","Da Lat","Lukas","Vietsovpetro Hotel",3],["684426","Hanoi","Andy","22Housing 81 Linh Lang Hotel",2],["995723","Hanoi","Andy","22Housing Apartment",2],["685129","Hanoi","Andy","22Housing Apartment 20 Ling Lang",2],["187881","Phu Quoc","Aerum","Amarin Resort & Spa Phu Quoc",2],["493408","Hoi An","Nhi","Anio Boutique Hotel Hoi An",2],["717581","Ho Chi Minh","Aerum","Anpha Boutique Hotel",2],["809883","Da Nang","Mike","Bay Capital Danang",2],["1000755","Da Lat","Lukas","BRICS Boutique Dalat",2],["846010","Nha Trang","Aerum","Cam Ranh Mystery Villas & Spa",2],["1001628","Da Lat","Lukas","Cherry Da Lat 3 - Luxury Hotel",2],["1001571","Hanoi","Anna","DeLaMont Sapa Hotel",2],["399995","Da Nang","Anna","Everland Hotel",2],["682161","ETC","Hanny","FLC Grand Hotel Quy Nhon",2],["972911","Hanoi","Anna","Green Suites Hotel",2],["141826","Ho Chi Minh","Aerum","Halo Boutique Ben Thanh Hotel",2],["1000476","Hanoi","Andy","Hanoi Shouten - Serviced Apartment",2],["1001505","Da Nang","Anna","Hold Amanda Boutique Hotel",2],["214105","Hoi An","Nhi","Le Pavillon Hoi An Luxury Resort & Spa",2],["861081","ETC","Nhi","Linh Phuong 8 Hotel",2],["1001431","Hanoi","Andy","Lyra Grandeur Cruise",2],["1001098","Hanoi","Anna","Mandala Hotel & Suites Hai Duong",2],["1001237","ETC","Nhi","MerPerle Nui Sam Resort",2],["1001594","Phu Quoc","Aerum","Mimosa Hotel Phu Quoc",2],["105294","Ho Chi Minh","Hanny","Ngan Ha Hotel",2],["896330","Ho Chi Minh","Hanny","Nicecy Boutique Hotel",2],["1001221","Ho Chi Minh","Hanny","Nicecy Hotel - Yersin Street",2],["740559","Phan Thiet","Mike","Radisson Resort Phan Thiet",2],["353542","Hanoi","Anna","Rex Hanoi Hotel",2],["143171","Nha Trang","Aerum","Rosaka Nha Trang Hotel",2],["995725","Da Lat","Lukas","Sandals Aquila Hotel",2],["1001495","Da Lat","Lukas","Sandals Mimosa",2],["1001537","Da Nang","Nhi","SBH Gloria Hue",2],["424719","Ho Chi Minh","Nhi","Silverland Yen Hotel",2],["156049","ETC","Anna","The Reed Hotel",2],["1001599","Hanoi","Andy","Wanderlust Station Hostel",2],["982816","Ho Chi Minh","Nhi","Zeus Living - City Central",2],["153244","Ho Chi Minh","Nhi","Alagon D'antique Hotel & Spa",1],["1001227","Hanoi","Andy","Angsana Quan Lan",1],["995727","Hanoi","Anna","Blue Kites Residence by À La Carte Ha Long Bay",1],["384165","Hanoi","Andy","FLC Halong Bay Golf Club & Luxury Resort",1],["976560","Nha Trang","Lukas","Golden Rain 2 Hotel",1],["1001405","Hanoi","Anna","Hanoi Sail Hotel",1],["1001393","Phan Thiet","Mike","Hoa Phuong Do Hotel Vung Tau",1],["1001543","Hanoi","Anna","J Village Hotel",1],["966909","Phan Thiet","Mike","Joi Hospitality - Anthony",1],["1001581","Ho Chi Minh","Anna","Lancaster Legacy Hotel & Apartments",1],["499180","Hanoi","Anna","Lao Cai Star Hotel",1],["857326","Ho Chi Minh","Anna","Lotte Hotel Saigon",1],["905345","ETC","Andy","Lynn Times Thanh Thuy Hotel & Resort",1],["983133","ETC","Hanny","M Continental by Mandala Phu Yen",1],["194090","ETC","Mike","Melia Vinpearl Cua Sot Beach Resort",1],["390164","ETC","Nhi","Melia Vinpearl Tây Ninh",1],["1001530","Hoi An","Nhi","Namia River Retreat Hoi An",1],["455970","Ho Chi Minh","Mike","Nesta Hotel Saigon",1],["523453","Hanoi","Anna","Ngoc Lan Ha Long Hotel",1],["1001466","Da Nang","Mike","Ocean Bliss Hotel Da Nang",1],["1001099","Phan Thiet","Mike","Petro House Vung Tau (Block B)",1],["169628","Nha Trang","Lukas","Poseidon Nha Trang Hotel",1],["999166","Hoi An","Nhi","Reu Boutique Hotel",1],["188104","Ho Chi Minh","Andy","Roseland Centa Hotel & Spa",1],["407908","Hanoi","Anna","Silk Path Hotel Hanoi",1],["955512","ETC","Hanny","The Coffee City – Healing & Retreats",1],["1001236","ETC","Nhi","The Grand An An Hotel",1],["1001477","Nha Trang","Lukas","The Grand Arena Cam Ranh Hotel & Resort",1],["1001213","Ho Chi Minh","Anna","The Royal Sky - Phu My Hung",1],["576578","Nha Trang","Lukas","The Time Hotel Nha Trang",1],["243310","Phan Thiet","Mike","Viva Resort Mui Ne",1],["724759","Nha Trang","Lukas","Galliot Hotel Nha Trang",1]];
+const H2025_CODES=new Set(
+["517161","970001","187697","1001420","1001431","248577","975902","661030","178907","995967","886496","848217","980041","995729","475246","685129","415170","849784","845857","109801","294499","235093","798724","118555","650522","1001435","237348","384165","556176","187881","176187","519310","1001389","906279","401833","368134","979162","154326","370496","886510","789361","1001221","978987","931843","933502","1001425","808145","159877","195247","461992","682655","1001090","290571","650121","223036","442044","740559","754489","199349","658207","983131","982789","800769","831451","1001322","1001195","148336","698354","510767","343468","558012","298621","160823","720667","168934","685364","429605","387146","606110","732162","140164","287908","207461","154588","170579","209006","1001361","124556","202884","833435","220639","678537","264114","1001329","188147","582898","235199","810334","251468","361097","124873","288294","559223","1001095","328353","591036","469767","671602","251392","251475","969348","1001373","1001030","689039","739866","575390","297918","781634","897734","685169","830427","1001534","1001277","970334","429661","749903","687595","776717","400688","1001569","913420","1000113","655320","462790","886506","275779","152029","506400","349367","988125","834721","322999","755934","1001539","1001242","140072","1001205","1001096","146418","323484","975962","1001341","343262","1001530","757185","908868","152047","294644","852238","213579","145392","433310","999166","684426","120049","317354","1001462","1000706","1001199","708562","1001297","713750","1001412","118382","966909","790971","1001197","577834","513856","327163","1001548","1001291","143373","960245","671651","119178","574042","1000766","945879","103521","1001280","1001386","168971","521035","445473","543732","851015","1001399","508720","748972","705669","523396","1001472","642827","771064","906024","684427","1001565","247930","181933","605978","668798","1001557","1001428","343478","1001076","1001276","545466","539483","678107","740280","459348","1001418","1001424","846010","203644","703806","789705","219304","182868","306035","1001582","1001196","1001187","1001488","682358","1001227","182089","341836","1001495","135813","161220","356449","809430","1001392","124176","243310","886618","653603","1001535","618002","735584","166921","638241","886616","139962","848249","700008","389883","201902","886485","1001346","263079","1001599","1000111","886483","638797","108739","143569","995727","330369","666864","1001416","1001237","680785","982786","947519","351162","480327","985004","824419","959446","524322","665197","786342","682597","886622","861138","210490","832853","250438","724759","1001385","1001318","111689","302253","977208","168607","708544","699970","628463","361092","661170","809933","857204","982792","1001413","712837","963521","886569","1001350","277038","176923","299497","1001544","983128","474040","983134","1001432","982785","213319","1001281","338046","780384","529997","834072","740979","141139","1001542","286433","794051","164884","782858","907898","159571","886627","741441","889790","551715","343476","682598","221119","779057","549332","143269","567304","1001455","997816","1001384","1001485","220370","192950","793334","289649","892998","811727","1001394","330376","195984","1001393","967926","1001093","605599","1001331","580384","1001213","547470","1001598","711699","687645","521616","861081","1001353","896330","965691","694507","1001296","1001308","886583","815935","148783","1001571","1001550","153244","152335","807239","690000","151539","1001583","184640","188336","1001233","519255","795664","900856","348402","651064","815890","709121","1001541","1001330","798697","712479","1001510","389744","1001310","931048","672232","399995","368042","739348","1001309","982816","347051","213135","1001487","1001103","996462","998568","588877","721746","554255","710790","251296","998961","325652","1001338","251471","699961","310129","130321","179015","373529","179620","343061","404232","440683","678951","1001040","901975","141246","696467","502665","215859","703088","177763","389454","350684","714102","1001537","622974","860363","1001529","853564","155204","501961","134035","239626","1001315","732164","856815","1001415","152636","648819","447791","396844","852760","128479","293686","723141","580133","831709","194090","960253","982788","113786","160024","1001102","985239","675297","995725","445993","271462","748654","226803","852740","886661","772156","303538","523453","995724","862436","177159","983182","983129","157395","235094","698551","995732","191581","352505","729011","703029","114996","681047","850709","606114","188474","491061","452660","1001301","830297","700609","752163","803104","389409","331235","554765","1001231","229505","533544","956887","153381","1001390","194789","857921","1001320","1001395","368165","153696","1001508","682161","139868","886625","861133","1001545","414951","241590","703441","1001101","503742","673164","973319","1001493","1001203","123489","420882","770847","777206","995748","410686","482162","1001319","198749","124621","802516","485674","346069","157425","331379","960255","326596","135972","165524","1001363","1001204","1001523","115003","813172","251396","1001081","141826","799934","1001206","636918","801890","476288","448116","169628","353957","407908","858581","905906","609951","372426","108267","1001429","1001466","649716","1001445","972911","338701","674035","1001490","995723","1001316","182082","411053","848267","520032","1001099","1000115","164194","343060","352666","1001628","1001305","455970","145543","297078","501438","499401","503223","486741","178651","1001382","537839","353542","1001300","651328","1001405","234826","348186","666719","665050","962278","960256","955301","449715","103973","963273","955512","396766","983132","695740","220645","949510","805287","1001190","670101","731199","785885","536499","272367","825631","805524","222345","1001293","214105","789173","700132","505625","653594","893016","671396","607907","579204","420874","1001504","1001543","886508","813477","1001317","830168","1001261","249179","861321","105433","114974","886662","600311","839743","1001328","1001443","983130","263017","1001299","373032","754056","215678","252178","1001398","854483","156049","104269","717796","301648","809883","886617","665977","738625","982791","315278","659023","1001263","188104","1001228","118691","668474","733705","114638","105294","1001467","139605","435069","128860","788458","662122","718398","691720","1001515","174754","995726","664368","995730","717581","191625","510007","230461","749271","144994","372590","108718","689337","109838","830414","934403","211197","1001311","994913","1001285","995731","907625","1001079","513115","187664","1001078","1001295","141613","581695","661324","141043","1000476","645725","1001333","396775","503729","830192","812154","662532","805285","373586","471966","1001417","945516","1001491","956597","995733","453535","834458","407978","350847","1001436","543772","1001106","660428","1001477","606209","220644","628632","176338","423757","181225","850536","1001441","390164","897580","209213","994225","174813","449411","797808","661318","215829","179835","577219","464470","857254","860531","1001465","493408","186669","238504","1001024","140216","110653","1001581","857326","852675","654455","855398","1001306","705080","959965","111110","389987","1001198","404246","985237","161624","886494","456043","335818","1001519","886505","956297","1001209","152644","200805","412951","535099","161250","210331","660031","203877","983133","1001088","405520","513723","327758","1001098","481557","600624","234816","270784","477339","1001312","886567","857970","271969","174218","144992","143921","253211","567245","286455","166923","945851","982790","174427","286524","764010","1001505","1001282","698758","1001484","886507","905345","424719","665068","1001369","133730","1001366","576406","621562","606109","514735","732161","491209","973649","1001410","953810","1001235","896487","540340","708640","955303","1001086","709542","886492","528935","229136","506308","385033","194167","735676","1001444","1001314","1001236","1001284","781143","850760","292150","1001489","171255","749044","953517","1001332","495055","191013","309683","113687","791116","586685","178803","294391","302179","786769","850884","1001292","800156","229424","354250","439389","886623","1001573","890757","660110","218057","166251","380027","1001556","120081","886619","827642","171127","494876","361438","101336","107993","888319","166915","367381","586543","781847","983921","970517","1001321","428606","133602","129322","1001031","494808","161249","831975","221234","412995","263044","588032","450577","734430","356680","733189","499180","349893","1001347","168556","899305","1001594","143171","196724","976560","285954","194617","161253","606106","662366","663227","737238","1000755","651446","322836","314384","565157","577974","124162","741450","1001337","786114","778342","348226","1001184","821065","856615","1001375","1001414","982784","430820","576578","1001232"]);
+
+/* ══ APP STATE ═══════════════════════════════════════════════════════ */
+const MN=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PCOL={Aerum:'#c0392b',Andy:'#2471a3',Anna:'#8e44ad',Hanny:'#d68910',Lukas:'#1e8449',Mike:'#6e2f00',Nhi:'#1a6b5a'};
+const PICS=['Aerum','Andy','Anna','Hanny','Lukas','Mike','Nhi'];
+const AREAS=['Da Lat','Da Nang','ETC','Hanoi','Ho Chi Minh','Hoi An','Nha Trang','Phan Thiet','Phu Quoc'];
+let D=[],H=[],NEW26=[],ONLY25=[],fileName='',fileDate='';
+let pg=1,curTab='D',cachedAgg=[],cachedNPU=[],cachedYoY=[];
+
+/* ══ SCREEN MANAGEMENT ═══════════════════════════════════════════════ */
+function show(id){['scrLogin','scrUpload','scrDash'].forEach(s=>{
+  const el=document.getElementById(s);
+  el.className='screen'+(s===id?' active':'');
+});}
+
+/* ══ AUTH ════════════════════════════════════════════════════════════ */
+function doLogin(){
+  const email=document.getElementById('emailInput').value.trim().toLowerCase();
+  const errEl=document.getElementById('loginErr');
+  errEl.style.display='none';
+  if(!email){errEl.textContent='Please enter your email address.';errEl.style.display='block';return;}
+  if(!email.includes('@')||!email.endsWith('@ohmyhotel.com')){
+    errEl.textContent='Access restricted to @ohmyhotel.com email addresses only.';
+    errEl.style.display='block';return;
+  }
+  sessionStorage.setItem('omh_user',email);
+  const name=email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  document.getElementById('greetName').textContent=name;
+  document.getElementById('hdrUser').textContent='&#128100; '+email;
+  // Check if we have cached data for this user
+  const cached=localStorage.getItem('omh_data_'+email);
+  if(cached){
+    try{
+      const saved=JSON.parse(cached);
+      D=saved.D;H=saved.H;NEW26=saved.NEW26;ONLY25=saved.ONLY25;
+      fileName=saved.fileName||'';fileDate=saved.fileDate||'';
+      document.getElementById('hdrFile').textContent=fileName?'File: '+fileName+' ('+fileDate+')':'';
+      document.getElementById('hdrSub').textContent='2026 · Based on Checkout Date · '+( fileDate||'');
+      initDashboard();show('scrDash');return;
+    }catch(e){}
+  }
+  show('scrUpload');
+}
+
+function signOut(){sessionStorage.removeItem('omh_user');show('scrLogin');}
+function goUpload(){show('scrUpload');}
+
+/* ══ FILE UPLOAD & PARSING ═══════════════════════════════════════════ */
+function ev(e,type,flag){
+  e.preventDefault();e.stopPropagation();
+  const dz=document.getElementById('dropZone');
+  if(type==='drag'){dz.className='drop-zone'+(flag?' drag':'');}
+  else if(type==='drop'){dz.className='drop-zone';const f=e.dataTransfer.files[0];if(f)handleFile(f);}
+}
+
+function setProgress(pct,label){
+  document.getElementById('upProg').style.display='block';
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progLabel').textContent=label;
+}
+
+function showUploadErr(msg){
+  const el=document.getElementById('uploadErr');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('upProg').style.display='none';
+}
+
+function handleFile(file){
+  if(!file)return;
+  if(!file.name.match(/\.xlsx?$/i)){showUploadErr('Please upload an Excel file (.xlsx)');return;}
+  document.getElementById('uploadErr').style.display='none';
+  setProgress(10,'Reading Excel file…');
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      setProgress(30,'Parsing sheets…');
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const required=['Real RN','Selling Rate','Buying rate','Margin'];
+      const missing=required.filter(s=>!wb.SheetNames.includes(s));
+      if(missing.length){showUploadErr('Missing sheets: '+missing.join(', ')+'. Please check the file format.');return;}
+      setProgress(50,'Extracting hotel data…');
+      const parsed=parseRPA(wb);
+      if(!parsed||!parsed.D.length){showUploadErr('No hotel data found. Please check the file.');return;}
+      setProgress(80,'Computing YoY comparison…');
+      D=parsed.D;H=parsed.H;
+      const codes26=new Set(H.map(h=>h[0]));
+      NEW26=H.filter(h=>!H2025_CODES.has(h[0])).map(h=>{
+        const totalRN=D.filter(r=>r[0]===h[0]).reduce((s,r)=>s+r[5],0);
+        return [h[0],h[1],h[2],h[3],totalRN];
+      });
+      ONLY25=H2025_LIST.filter(h=>!codes26.has(h[0]));
+      fileName=file.name;
+      fileDate=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      setProgress(95,'Building dashboard…');
+      // Cache for this user
+      const email=sessionStorage.getItem('omh_user');
+      if(email){
+        try{localStorage.setItem('omh_data_'+email,JSON.stringify({D,H,NEW26,ONLY25,fileName,fileDate}));}catch(e){}
+      }
+      document.getElementById('hdrUser').textContent='&#128100; '+email;
+      document.getElementById('hdrFile').textContent='File: '+fileName+' ('+fileDate+')';
+      document.getElementById('hdrSub').textContent='2026 · Based on Checkout Date · Loaded '+fileDate;
+      setProgress(100,'Done!');
+      setTimeout(()=>{initDashboard();show('scrDash');},400);
+    }catch(err){showUploadErr('Error parsing file: '+err.message+'. Please check the file format.');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* Month column indices in the RPA Excel (0-indexed within each sheet row array) */
+/* Structure: header row index 1, data from row 3; cols: 0=No,1=Code,2=Area,3=PIC,4=Name */
+/* Months: Jan=5,Feb=6,Mar=7,[Q1=8],Apr=9,May=10,Jun=11,[Q2=12], */
+/*         Jul=13,Aug=14,Sep=15,[Q3=16],Oct=17,Nov=18,Dec=19,[Q4=20],[YR=21] */
+const MCOLS={1:5,2:6,3:7,4:9,5:10,6:11,7:13,8:14,9:15,10:17,11:18,12:19};
+
+function parseRPA(wb){
+  function getSheet(name){
+    const ws=wb.Sheets[name];
+    return XLSX.utils.sheet_to_json(ws,{header:1,defval:0,raw:true});
+  }
+  function findDataStart(rows){
+    // Find the row after "TOTAL" header row
+    for(let i=0;i<Math.min(10,rows.length);i++){
+      const r=rows[i];
+      if(r&&String(r[1]||'').includes('HOTEL')||String(r[1]||'').includes('Code')) continue;
+    }
+    return 3; // row index 0=blank/year, 1=header, 2=TOTAL, 3=first hotel
+  }
+  const rnRows=getSheet('Real RN');
+  const sellRows=getSheet('Selling Rate');
+  const buyRows=getSheet('Buying rate');
+  const mgRows=getSheet('Margin');
+  const D=[], hmap={};
+  const dataStart=3;
+  for(let i=dataStart;i<rnRows.length;i++){
+    const r=rnRows[i];
+    if(!r||!r[1]||r[1]==='TOTAL'||String(r[1]).trim()==='') continue;
+    const code=String(r[1]).trim();
+    const area=String(r[2]||'').trim();
+    const pic =String(r[3]||'').trim();
+    const name=String(r[4]||'').trim();
+    if(!code||!name||name==='HOTEL NAME') continue;
+    if(!hmap[code]) hmap[code]=[code,area,pic,name];
+    for(const [m,ci] of Object.entries(MCOLS)){
+      const mn=+m;
+      const rn=  +( rnRows[i]?rnRows[i][ci]||0:0);
+      const sell=+(sellRows[i]?sellRows[i][ci]||0:0);
+      const buy= +(buyRows[i]?buyRows[i][ci]||0:0);
+      const mg=  +(mgRows[i]?mgRows[i][ci]||0:0);
+      if(rn>0||sell>0) D.push([code,area,pic,name,mn,Math.round(rn),Math.round(sell),Math.round(buy),Math.round(mg),sell>0?+(mg/sell*100).toFixed(2):0]);
+    }
+  }
+  const H=Object.values(hmap);
+  return {D,H};
+}
+
+/* ══ DASHBOARD ════════════════════════════════════════════════════ */
+function initDashboard(){pg=1;curTab='D';sw('D');}
+
+function fmt(n){return isNaN(n)?'—':Math.round(n).toLocaleString('en-US')}
+function is22(n){return /22Land|22Housing|22land/i.test(n)}
+function isMV(n){return /M Village/i.test(n)}
+function nc(n){return is22(n)?'n22':(isMV(n)?'nMV':'')}
+function cc(n){return is22(n)?'c22':(isMV(n)?'cMV':'')}
+
+function sw(t){
+  curTab=t;
+  ['D','N','Y'].forEach(x=>{
+    document.getElementById('view'+x).style.display=x===t?'':'none';
+    document.getElementById('tab'+x).className='tab'+(x===t?' active':'');
+  });
+  document.getElementById('grpSort').style.display=t==='D'?'':'none';
+  document.getElementById('grpPage').style.display=t==='D'?'':'none';
+  document.getElementById('btnExp').style.display=t==='D'?'':'none';
+  if(t==='N') renderNPU();
+  if(t==='Y'){buildYoYBadges();renderYoY();}
+}
+
+function buildYoYBadges(){
+  const pic=document.getElementById('fP').value, reg=document.getElementById('fR').value;
+  let n=NEW26,o=ONLY25;
+  if(pic){n=n.filter(h=>h[2]===pic);o=o.filter(h=>h[2]===pic);}
+  if(reg){n=n.filter(h=>h[1]===reg);o=o.filter(h=>h[1]===reg);}
+  document.getElementById('yoyNewBadge').textContent='+'+n.length+' New in 2026';
+  document.getElementById('yoyOldBadge').textContent='-'+o.length+' Only in 2025';
+}
+
+function render(){
+  const mo=+document.getElementById('fM').value||0,
+        pic=document.getElementById('fP').value,
+        reg=document.getElementById('fR').value,
+        srch=document.getElementById('fS').value.trim().toLowerCase(),
+        sort=document.getElementById('fSo').value,
+        psz=parseInt(document.getElementById('fPg').value)||100;
+  let rows=D;
+  if(mo)   rows=rows.filter(r=>r[4]===mo);
+  if(pic)  rows=rows.filter(r=>r[2]===pic);
+  if(reg)  rows=rows.filter(r=>r[1]===reg);
+  if(srch) rows=rows.filter(r=>r[3].toLowerCase().includes(srch));
+  const map={};
+  rows.forEach(r=>{if(!map[r[0]])map[r[0]]={code:r[0],area:r[1],pic:r[2],name:r[3],rn:0,sell:0,buy:0,mg:0};
+    map[r[0]].rn+=r[5];map[r[0]].sell+=r[6];map[r[0]].buy+=r[7];map[r[0]].mg+=r[8];});
+  let agg=Object.values(map);
+  if(sort==='rn')    agg.sort((a,b)=>b.rn-a.rn);
+  else if(sort==='sell') agg.sort((a,b)=>b.sell-a.sell);
+  else if(sort==='mg')   agg.sort((a,b)=>b.mg-a.mg);
+  else if(sort==='mp')   agg.sort((a,b)=>(b.sell?b.mg/b.sell:0)-(a.sell?a.mg/a.sell:0));
+  else if(sort==='name') agg.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sort==='area') agg.sort((a,b)=>a.area.localeCompare(b.area)||b.rn-a.rn);
+  cachedAgg=agg;
+  const tRN=agg.reduce((s,r)=>s+r.rn,0),tS=agg.reduce((s,r)=>s+r.sell,0),
+        tB=agg.reduce((s,r)=>s+r.buy,0),tM=agg.reduce((s,r)=>s+r.mg,0);
+  document.getElementById('tH').textContent=agg.length.toLocaleString();
+  document.getElementById('tR').textContent=tRN.toLocaleString();
+  document.getElementById('tS').textContent=fmt(tS);
+  document.getElementById('tB').textContent=fmt(tB);
+  document.getElementById('tM').textContent=fmt(tM);
+  document.getElementById('tMP').textContent=(tS?tM/tS*100:0).toFixed(2)+'%';
+  document.getElementById('mB').textContent=(pic?pic+' · ':'')+( mo?MN[mo]+' 2026':'All 2026');
+  renderAccounts(mo,pic,reg,srch,agg);
+  const totPg=psz>=9999?1:Math.ceil(agg.length/psz);
+  if(pg>totPg)pg=1;
+  const st=(pg-1)*psz,en=psz>=9999?agg.length:Math.min(st+psz,agg.length);
+  document.getElementById('pgI').textContent='Showing '+(st+1)+'-'+en+' of '+agg.length+' hotels';
+  const pgB=document.getElementById('pgB');pgB.innerHTML='';
+  if(totPg>1){
+    const ab=(l,p,a)=>{const b=document.createElement('button');b.className='pg-btn'+(a?' active':'');b.textContent=l;b.onclick=()=>{pg=p;render();};pgB.appendChild(b);};
+    if(pg>1)ab('‹',pg-1,0);for(let i=Math.max(1,pg-2);i<=Math.min(totPg,pg+2);i++)ab(i,i,i===pg);if(pg<totPg)ab('›',pg+1,0);
+  }
+  const slice=agg.slice(st,en);
+  const tb=document.getElementById('tBody');
+  if(!slice.length){tb.innerHTML='<tr><td colspan="10" class="nodata">No hotels match filters.</td></tr>';return;}
+  tb.innerHTML=slice.map((r,i)=>{
+    const gi=st+i,mp=r.sell?r.mg/r.sell*100:0,rc=is22(r.name)?'r22':(gi%2?'ro':'re');
+    let mc=mp<0?'neg':mp>=7?'hiMg':mp<3?'loMg':mp<4?'midMg':'';
+    return '<tr class="'+rc+'"><td class="center" style="color:#999;font-size:10px">'+(gi+1)+'</td>'+
+      '<td class="left" style="color:#555">'+r.area+'</td><td class="center" style="color:#777;font-size:10px">'+r.code+'</td>'+
+      '<td class="left '+nc(r.name)+'" style="max-width:245px;overflow:hidden;text-overflow:ellipsis" title="'+r.name.replace(/"/g,'&quot;')+'">'+r.name+'</td>'+
+      '<td style="font-weight:700;color:#1F3864">'+r.rn.toLocaleString()+'</td>'+
+      '<td>'+fmt(r.sell)+'</td><td>'+fmt(r.buy)+'</td>'+
+      '<td class="'+(r.mg<0?'neg':'')+'">'+fmt(r.mg)+'</td>'+
+      '<td class="'+mc+'" style="font-weight:700">'+mp.toFixed(2)+'%</td>'+
+      '<td class="center"><span class="pic-badge p'+r.pic+'">'+r.pic+'</span></td></tr>';
+  }).join('');
+  if(curTab==='N') renderNPU();
+  if(curTab==='Y'){buildYoYBadges();renderYoY();}
+}
+
+function renderAccounts(mo,pic,reg,srch,agg){
+  if(!mo){
+    ['newCt','lostCt'].forEach(id=>{document.getElementById(id).textContent='—';document.getElementById(id).style.background='#555';});
+    document.getElementById('newLbl').textContent='New accounts';
+    document.getElementById('newPrv').textContent='Select a month to compare vs. previous month';
+    document.getElementById('newChips').innerHTML='<span class="no-sel" style="color:#7fb99a">Choose a month above</span>';
+    document.getElementById('lostLbl').textContent='Lost accounts';
+    document.getElementById('lostPrv').textContent='Hotels with bookings last month but none this month';
+    document.getElementById('lostChips').innerHTML='<span class="no-sel" style="color:#e59999">Choose a month above</span>';
+    return;
+  }
+  const pm=mo-1,curL=MN[mo]+' 2026',prvL=pm>0?MN[pm]+' 2026':'(no prior)';
+  const curC=new Set(agg.map(r=>r.code));
+  let pr=D.filter(r=>r[4]===pm);
+  if(pic) pr=pr.filter(r=>r[2]===pic);if(reg) pr=pr.filter(r=>r[1]===reg);if(srch) pr=pr.filter(r=>r[3].toLowerCase().includes(srch));
+  const pM={};pr.forEach(r=>{if(!pM[r[0]])pM[r[0]]={code:r[0],area:r[1],pic:r[2],name:r[3],rn:0,sell:0,buy:0,mg:0};pM[r[0]].rn+=r[5];pM[r[0]].sell+=r[6];pM[r[0]].buy+=r[7];pM[r[0]].mg+=r[8];});
+  const pC=new Set(Object.keys(pM));
+  const newH=agg.filter(r=>!pC.has(r.code)).sort((a,b)=>b.rn-a.rn);
+  const lostH=Object.values(pM).filter(h=>!curC.has(h.code)).sort((a,b)=>b.rn-a.rn);
+  const mk=(h,cls,rn)=>'<span class="chip '+cls+' '+cc(h.name)+'" title="'+h.area+' | '+h.pic+' | '+rn+' RN">'+h.name+' <span style="opacity:.65;font-size:9px">('+rn+' RN)</span></span>';
+  const nc2=document.getElementById('newCt');nc2.textContent='+'+newH.length;nc2.style.background=newH.length?'#27ae60':'#7f8c8d';
+  document.getElementById('newLbl').textContent='new account'+(newH.length!==1?'s':'')+' in '+curL;
+  document.getElementById('newPrv').textContent=pm<1?'(Jan — no prior)':'vs. '+prvL+' ('+pC.size+' hotels)';
+  document.getElementById('newChips').innerHTML=newH.length?newH.map(h=>mk(h,'ch-new',h.rn)).join(''):'<span class="no-sel" style="color:#7fb99a">No new hotels vs. '+prvL+'</span>';
+  const lc=document.getElementById('lostCt');lc.textContent='-'+lostH.length;lc.style.background=lostH.length?'#c0392b':'#7f8c8d';
+  document.getElementById('lostLbl').textContent='lost account'+(lostH.length!==1?'s':'')+' from '+prvL;
+  document.getElementById('lostPrv').textContent=pm<1?'(Jan — no prior)':'had RN in '+prvL+' but none in '+curL;
+  document.getElementById('lostChips').innerHTML=lostH.length?lostH.map(h=>mk(h,'ch-lost',h.rn)).join(''):'<span class="no-sel" style="color:#e59999">No lost hotels vs. '+prvL+'</span>';
+}
+
+function renderNPU(){
+  const mo=+document.getElementById('fM').value||0,
+        pic=document.getElementById('fP').value,
+        reg=document.getElementById('fR').value,
+        srch=document.getElementById('fS').value.trim().toLowerCase(),
+        ns=document.getElementById('npuSrch').value.trim().toLowerCase(),
+        grp=document.getElementById('npuSrt').value,
+        ord=document.getElementById('npuOrd').value,
+        moL=mo?MN[mo]+' 2026':'All 2026';
+  document.getElementById('npuBadge').textContent=(pic?pic+' · ':'')+moL;
+  if(!mo){document.getElementById('npuBody').innerHTML='<tr><td colspan="7" class="npu-no-data">&#9888; Select a specific month to view No Pick Up accounts.</td></tr>';document.getElementById('npuSum').innerHTML='';document.getElementById('npuInfo').textContent='—';return;}
+  let act=D.filter(r=>r[4]===mo);
+  if(pic) act=act.filter(r=>r[2]===pic);if(reg) act=act.filter(r=>r[1]===reg);
+  const actC=new Set(act.map(r=>r[0]));
+  const pm=mo-1,prevRN={};
+  if(pm>0) D.filter(r=>r[4]===pm).forEach(r=>{prevRN[r[0]]=(prevRN[r[0]]||0)+r[5];});
+  let cands=H;
+  if(pic)  cands=cands.filter(h=>h[2]===pic);
+  if(reg)  cands=cands.filter(h=>h[1]===reg);
+  if(srch) cands=cands.filter(h=>h[3].toLowerCase().includes(srch));
+  let npu=cands.filter(h=>!actC.has(h[0]));
+  if(ns) npu=npu.filter(h=>h[3].toLowerCase().includes(ns)||h[1].toLowerCase().includes(ns));
+  if(ord==='name') npu.sort((a,b)=>a[3].localeCompare(b[3]));
+  else if(ord==='area') npu.sort((a,b)=>a[1].localeCompare(b[1])||a[3].localeCompare(b[3]));
+  else if(ord==='prev') npu.sort((a,b)=>(prevRN[b[0]]||0)-(prevRN[a[0]]||0));
+  cachedNPU=npu;
+  const byPic={};npu.forEach(h=>{byPic[h[2]]=(byPic[h[2]]||0)+1;});
+  const sp=pic?[pic]:PICS.filter(p=>byPic[p]);
+  document.getElementById('npuSum').innerHTML=
+    '<div class="npu-stat" style="padding-left:4px"><div class="npu-sl">Total</div><div class="npu-sv" style="color:#f5b7b1">'+npu.length+'</div></div>'+
+    sp.map(p=>'<div class="npu-stat"><div class="npu-sl">'+p+'</div><div class="npu-sv">'+(byPic[p]||0)+'</div></div>').join('');
+  document.getElementById('npuInfo').textContent=npu.length+' hotels with 0 RN in '+moL+(pm>0?' — green = had RN in '+MN[pm]:'');
+  if(!npu.length){document.getElementById('npuBody').innerHTML='<tr><td colspan="7" class="npu-no-data" style="color:#27ae60">&#9989; All hotels had bookings in '+moL+'</td></tr>';return;}
+  const grpKey=grp==='pic'?2:1;
+  const keys=grp==='pic'?sp:(reg?[reg]:AREAS.filter(a=>npu.some(h=>h[1]===a)));
+  let rows=[],rowIdx=0;
+  keys.forEach(k=>{
+    const items=npu.filter(h=>h[grpKey]===k);if(!items.length)return;
+    const col=grp==='pic'?(PCOL[k]||'#555'):'#2c5282';
+    rows.push('<tr style="background:'+col+'1a"><td colspan="7" style="padding:5px 9px;font-weight:700;font-size:11px;color:'+col+';border-top:2px solid '+col+'40;border-bottom:1px solid '+col+'30"><span class="pic-badge p'+k+'" style="'+(grp!=='pic'?'background:#2c5282;':'')+'">'+k+'</span> &nbsp;'+items.length+' hotels with 0 RN</td></tr>');
+    items.forEach(h=>{
+      rowIdx++;
+      const prn=prevRN[h[0]]||0,hasPrev=pm>0&&prn>0,dimmed=pm>0&&prn===0;
+      rows.push('<tr class="'+(rowIdx%2?'ro':'re')+'"'+(dimmed?' style="opacity:.55"':'')+'>'+
+        '<td class="c" style="color:#999;font-size:10px">'+rowIdx+'</td>'+
+        '<td class="c"><span class="pic-badge p'+h[2]+'">'+h[2]+'</span></td>'+
+        '<td class="left '+nc(h[3])+'" style="max-width:265px;overflow:hidden;text-overflow:ellipsis" title="'+h[3].replace(/"/g,'&quot;')+'">'+h[3]+'</td>'+
+        '<td class="left" style="color:#555">'+h[1]+'</td>'+
+        '<td class="c" style="color:#777;font-size:10px">'+h[0]+'</td>'+
+        '<td class="r '+(hasPrev?'prev-rn':'no-prev')+'">'+(pm>0?(hasPrev?prn.toLocaleString()+' RN':'0 RN'):'—')+'</td>'+
+        '<td class="c" style="color:#e74c3c;font-weight:700">0 RN</td></tr>');
+    });
+  });
+  document.getElementById('npuBody').innerHTML=rows.join('');
+  document.getElementById('nhGrp').textContent=(grp==='pic'?'PIC':'Region')+' ▼';
+}
+
+function renderYoY(){
+  const srch=document.getElementById('yoySrch').value.trim().toLowerCase(),
+        view=document.getElementById('yoyView').value,
+        grp=document.getElementById('yoySrt').value,
+        ord=document.getElementById('yoyOrd').value,
+        pic=document.getElementById('fP').value,
+        reg=document.getElementById('fR').value;
+  let src=view==='new'?NEW26:ONLY25;
+  if(pic)  src=src.filter(h=>h[2]===pic);
+  if(reg)  src=src.filter(h=>h[1]===reg);
+  if(srch) src=src.filter(h=>h[3].toLowerCase().includes(srch)||h[1].toLowerCase().includes(srch));
+  if(ord==='name') src=[...src].sort((a,b)=>a[3].localeCompare(b[3]));
+  else if(ord==='area') src=[...src].sort((a,b)=>a[1].localeCompare(b[1])||a[3].localeCompare(b[3]));
+  else if(ord==='rn')   src=[...src].sort((a,b)=>b[4]-a[4]);
+  cachedYoY=src;
+  const maxRN=Math.max(...src.map(h=>h[4]),1),isNew=view==='new';
+  const byPic={};src.forEach(h=>{byPic[h[2]]=(byPic[h[2]]||0)+1;});
+  const byArea={};src.forEach(h=>{byArea[h[1]]=(byArea[h[1]]||0)+1;});
+  const sp=pic?[pic]:PICS.filter(p=>byPic[p]);
+  const sa=reg?[reg]:AREAS.filter(a=>byArea[a]);
+  document.getElementById('yoySum').innerHTML=
+    '<div class="yoy-stat" style="padding-left:4px"><div class="yoy-sl">Showing</div><div class="yoy-sv">'+(isNew?'New 2026':'Only 2025')+'</div></div>'+
+    '<div class="yoy-stat"><div class="yoy-sl">Hotels</div><div class="yoy-sv">'+src.length+'</div></div>'+
+    (grp==='pic'?sp:sa).map(k=>'<div class="yoy-stat"><div class="yoy-sl">'+k+'</div><div class="yoy-sv">'+(grp==='pic'?byPic:byArea)[k]+'</div></div>').join('');
+  document.getElementById('yoyInfo').textContent=src.length+' hotels — '+(isNew?'new accounts in 2026 (0 RN in all 2025)':'accounts from 2025 not in current 2026 upload');
+  document.getElementById('yhGrp').textContent=(grp==='pic'?'PIC':'Region')+' ▼';
+  if(!src.length){document.getElementById('yoyBody').innerHTML='<tr><td colspan="7" class="npu-no-data">No hotels match the current filters.</td></tr>';return;}
+  const grpKey=grp==='pic'?2:1;const keys=grp==='pic'?sp:sa;
+  const badge=isNew?'<span class="new26-badge">New 2026</span>':'<span class="only25-badge">Only 2025</span>';
+  let rows=[],rowIdx=0;
+  keys.forEach(k=>{
+    const items=src.filter(h=>h[grpKey]===k);if(!items.length)return;
+    const col=grp==='pic'?(PCOL[k]||'#555'):'#1a4a7a';
+    rows.push('<tr style="background:'+col+'1a"><td colspan="7" style="padding:5px 9px;font-weight:700;font-size:11px;color:'+col+';border-top:2px solid '+col+'40;border-bottom:1px solid '+col+'30"><span class="pic-badge p'+k+'" style="'+(grp!=='pic'?'background:#1a4a7a;':'')+'">'+k+'</span> &nbsp;'+items.length+' hotels</td></tr>');
+    items.forEach(h=>{
+      rowIdx++;
+      const barW=isNew?Math.max(2,Math.round(h[4]/maxRN*80)):0;
+      rows.push('<tr class="'+(rowIdx%2?'ro':'re')+'">'+
+        '<td class="c" style="color:#999;font-size:10px">'+rowIdx+'</td>'+
+        '<td class="c"><span class="pic-badge p'+h[2]+'">'+h[2]+'</span></td>'+
+        '<td class="left '+nc(h[3])+'" style="max-width:265px;overflow:hidden;text-overflow:ellipsis" title="'+h[3].replace(/"/g,'&quot;')+'">'+h[3]+'</td>'+
+        '<td class="left" style="color:#555">'+h[1]+'</td>'+
+        '<td class="c" style="color:#777;font-size:10px">'+h[0]+'</td>'+
+        '<td class="r" style="color:#2471a3;font-weight:600">'+(isNew?h[4].toLocaleString():'—')+(isNew&&barW?'<span class="rn-bar" style="width:'+barW+'px"></span>':'')+'</td>'+
+        '<td class="c">'+badge+'</td></tr>');
+    });
+  });
+  document.getElementById('yoyBody').innerHTML=rows.join('');
+}
+
+function clearF(){
+  ['fP','fR','fSo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fM').value='0';document.getElementById('fS').value='';
+  document.getElementById('fPg').value='100';document.getElementById('npuSrch').value='';
+  pg=1;render();
+}
+function exportCSV(){
+  if(!cachedAgg.length){alert('No data.');return;}
+  const h='No,Region,Code,Hotel Name,PIC,RN,Selling,Buying,Margin,Margin%\n';
+  const b=cachedAgg.map((r,i)=>{const mp=r.sell?(r.mg/r.sell*100).toFixed(2):'0.00';return(i+1)+','+r.area+','+r.code+',"'+r.name.replace(/"/g,'""')+'",'+r.pic+','+r.rn+','+r.sell+','+r.buy+','+r.mg+','+mp+'%';}).join('\n');
+  dl('VN_Hotel_'+(document.getElementById('fP').value||'All')+'_'+(+document.getElementById('fM').value?MN[+document.getElementById('fM').value]:'All')+'.csv',h+b);
+}
+function exportNPU(){
+  if(!cachedNPU.length){alert('No data.');return;}
+  const mo=+document.getElementById('fM').value,pm=mo-1;
+  const pM={};if(pm>0)D.filter(r=>r[4]===pm).forEach(r=>{pM[r[0]]=(pM[r[0]]||0)+r[5];});
+  const h='No,PIC,Region,Code,Hotel Name,This Month RN'+(pm>0?','+MN[pm]+' RN':'')+' \n';
+  const b=cachedNPU.map((r,i)=>(i+1)+','+r[2]+','+r[1]+','+r[0]+',"'+r[3].replace(/"/g,'""')+'",0'+(pm>0?','+(pM[r[0]]||0):'')).join('\n');
+  dl('NPU_'+(document.getElementById('fP').value||'All')+'_'+(mo?MN[mo]:'All')+'.csv',h+b);
+}
+function exportYoY(){
+  if(!cachedYoY.length){alert('No data.');return;}
+  const isNew=document.getElementById('yoyView').value==='new';
+  const h='No,PIC,Region,Code,Hotel Name,'+(isNew?'2026 YTD RN':'2025 Total RN')+',Status\n';
+  const b=cachedYoY.map((r,i)=>(i+1)+','+r[2]+','+r[1]+','+r[0]+',"'+r[3].replace(/"/g,'""')+'",'+r[4]+','+(isNew?'New in 2026':'Only in 2025')).join('\n');
+  dl('YoY_'+(isNew?'New2026':'Only2025')+'.csv',h+b);
+}
+function dl(name,csv){
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download=name;a.click();
+}
+
+/* ── Auto-restore session ── */
+(function(){
+  const email=sessionStorage.getItem('omh_user');
+  if(email){
+    document.getElementById('emailInput').value=email;
+    document.getElementById('greetName').textContent=email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    document.getElementById('hdrUser').textContent='&#128100; '+email;
+    const cached=localStorage.getItem('omh_data_'+email);
+    if(cached){
+      try{
+        const s=JSON.parse(cached);D=s.D;H=s.H;NEW26=s.NEW26;ONLY25=s.ONLY25;
+        fileName=s.fileName||'';fileDate=s.fileDate||'';
+        document.getElementById('hdrFile').textContent=fileName?'File: '+fileName+' ('+fileDate+')':'';
+        document.getElementById('hdrSub').textContent='2026 · Based on Checkout Date · '+( fileDate||'');
+        initDashboard();show('scrDash');return;
+      }catch(e){}
+    }
+    show('scrUpload');
+  }
+})();
+</script>
+</body></html>
